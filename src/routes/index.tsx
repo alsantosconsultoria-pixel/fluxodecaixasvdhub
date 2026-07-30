@@ -4,6 +4,7 @@ import { Download, Upload, TrendingUp, TrendingDown, Wallet } from "lucide-react
 import * as XLSX from "xlsx";
 
 import { Button } from "@/components/ui/button";
+import { FluxoCharts } from "@/components/FluxoCharts";
 import baseData from "@/data/fluxo-caixa.json";
 import {
   buildFluxo,
@@ -159,7 +160,10 @@ function FluxoDeCaixa() {
           />
         </section>
 
+        <FluxoCharts data={data} />
+
         <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
+
           <div className="overflow-auto">
             <table className="w-full border-collapse text-[12px] leading-tight">
               <thead>
