@@ -160,7 +160,10 @@ function FluxoDeCaixa() {
           />
         </section>
 
+        <FluxoCharts data={data} />
+
         <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
+
           <div className="overflow-auto">
             <table className="w-full border-collapse text-[12px] leading-tight">
               <thead>
