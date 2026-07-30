@@ -127,7 +127,7 @@ function RootComponent() {
         <SidebarProvider>
           <div className="flex min-h-screen w-full bg-gradient-page">
             <AppSidebar />
-            <div className="flex flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
               <header className="flex h-12 items-center gap-2 border-b border-flow-grid bg-card/70 px-2 backdrop-blur">
                 <SidebarTrigger />
                 <span className="text-sm font-medium text-foreground">
