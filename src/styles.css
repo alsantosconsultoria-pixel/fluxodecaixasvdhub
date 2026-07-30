@@ -61,8 +61,27 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@theme inline {
+  --color-flow-in: var(--flow-in);
+  --color-flow-in-bg: var(--flow-in-bg);
+  --color-flow-out: var(--flow-out);
+  --color-flow-out-bg: var(--flow-out-bg);
+  --color-flow-saldo: var(--flow-saldo);
+  --color-flow-saldo-bg: var(--flow-saldo-bg);
+  --color-flow-total-bg: var(--flow-total-bg);
+  --color-flow-grid: var(--flow-grid);
+}
+
 :root {
-  --radius: 0.625rem;
+  --radius: 0.375rem;
+  --flow-in: oklch(0.45 0.14 150);
+  --flow-in-bg: oklch(0.93 0.05 150);
+  --flow-out: oklch(0.52 0.19 25);
+  --flow-out-bg: oklch(0.93 0.05 25);
+  --flow-saldo: oklch(0.45 0.13 245);
+  --flow-saldo-bg: oklch(0.92 0.04 235);
+  --flow-total-bg: oklch(0.94 0.005 250);
+  --flow-grid: oklch(0.88 0.01 250);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
