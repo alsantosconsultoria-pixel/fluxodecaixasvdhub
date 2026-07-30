@@ -11,6 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { FluxoProvider } from "@/lib/fluxo-store";
+
 
 function NotFoundComponent() {
   return (
@@ -119,8 +123,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <FluxoProvider>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full bg-gradient-page">
+            <AppSidebar />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <header className="flex h-12 items-center gap-2 border-b border-flow-grid bg-card/70 px-2 backdrop-blur">
+                <SidebarTrigger />
+                <span className="text-sm font-medium text-foreground">
+                  Painel Financeiro
+                </span>
+              </header>
+              <main className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 md:px-8">
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </FluxoProvider>
     </QueryClientProvider>
   );
 }
+
