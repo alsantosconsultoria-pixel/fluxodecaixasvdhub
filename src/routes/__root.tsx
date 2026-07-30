@@ -134,7 +134,7 @@ function RootComponent() {
                   Painel Financeiro
                 </span>
               </header>
-              <main className="flex-1 px-4 py-6 md:px-8">
+              <main className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 md:px-8">
                 {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
                 <Outlet />
               </main>
