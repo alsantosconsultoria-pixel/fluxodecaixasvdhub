@@ -4,6 +4,7 @@ import { Download, Upload, TrendingUp, TrendingDown, Wallet } from "lucide-react
 import * as XLSX from "xlsx";
 
 import { Button } from "@/components/ui/button";
+import { FluxoCharts } from "@/components/FluxoCharts";
 import baseData from "@/data/fluxo-caixa.json";
 import {
   buildFluxo,
