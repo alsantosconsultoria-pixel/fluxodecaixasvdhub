@@ -119,8 +119,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <FluxoProvider>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full bg-gradient-page">
+            <AppSidebar />
+            <div className="flex flex-1 flex-col">
+              <header className="flex h-12 items-center gap-2 border-b border-flow-grid bg-card/70 px-2 backdrop-blur">
+                <SidebarTrigger />
+                <span className="text-sm font-medium text-foreground">
+                  Painel Financeiro
+                </span>
+              </header>
+              <main className="flex-1 px-4 py-6 md:px-8">
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </FluxoProvider>
     </QueryClientProvider>
   );
 }
+
