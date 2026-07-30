@@ -70,6 +70,8 @@
   --color-flow-saldo-bg: var(--flow-saldo-bg);
   --color-flow-total-bg: var(--flow-total-bg);
   --color-flow-grid: var(--flow-grid);
+  --background-image-gradient-page: var(--gradient-page);
+  --shadow-elegant: var(--shadow-elegant-value);
 }
 
 :root {
@@ -80,8 +82,14 @@
   --flow-out-bg: oklch(0.93 0.05 25);
   --flow-saldo: oklch(0.45 0.13 245);
   --flow-saldo-bg: oklch(0.92 0.04 235);
-  --flow-total-bg: oklch(0.94 0.005 250);
-  --flow-grid: oklch(0.88 0.01 250);
+  --flow-total-bg: oklch(0.96 0.005 250);
+  --flow-grid: oklch(0.9 0.008 250);
+  --gradient-page: linear-gradient(
+    180deg,
+    oklch(0.985 0.005 250),
+    oklch(0.955 0.012 245)
+  );
+  --shadow-elegant-value: 0 12px 32px -18px oklch(0.3 0.05 250 / 0.35);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
