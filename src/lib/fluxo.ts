@@ -120,7 +120,7 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
     out.push({
       mes,
       categoria,
-      valor: operacao === "pagar" ? -valor : valor,
+      valor: operacao === "pagar" ? -Math.abs(valor) : Math.abs(valor),
       tipo: operacao === "pagar" ? "saida" : "entrada",
       realizado,
     });
