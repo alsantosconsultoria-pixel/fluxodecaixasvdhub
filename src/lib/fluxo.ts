@@ -201,7 +201,7 @@ export function computeTotais(data: FluxoData, saldoInicial = 0) {
     rows.reduce((acc, r) => acc + (r.valores[i] ?? 0), 0);
   const totalEntradas = data.meses.map((_, i) => soma(data.entradas, i));
   const totalSaidas = data.meses.map((_, i) => soma(data.saidas, i));
-  const operacional = data.meses.map((_, i) => totalEntradas[i] - totalSaidas[i]);
+  const operacional = data.meses.map((_, i) => totalEntradas[i] + totalSaidas[i]);
   const inicial: number[] = [];
   const acumulado: number[] = [];
   data.meses.forEach((_, i) => {
