@@ -70,6 +70,9 @@
   --color-flow-saldo-bg: var(--flow-saldo-bg);
   --color-flow-total-bg: var(--flow-total-bg);
   --color-flow-grid: var(--flow-grid);
+  --color-flow-in-prev: var(--flow-in-prev);
+  --color-flow-out-prev: var(--flow-out-prev);
+  --color-flow-prev-bg: var(--flow-prev-bg);
   --background-image-gradient-page: var(--gradient-page);
   --shadow-elegant: var(--shadow-elegant-value);
 }
@@ -84,6 +87,9 @@
   --flow-saldo-bg: oklch(0.93 0.035 258);
   --flow-total-bg: oklch(0.95 0.018 258);
   --flow-grid: oklch(0.88 0.02 258);
+  --flow-in-prev: oklch(0.72 0.09 165);
+  --flow-out-prev: oklch(0.72 0.12 22);
+  --flow-prev-bg: oklch(0.97 0.012 258);
   --gradient-page: linear-gradient(
     180deg,
     oklch(0.98 0.012 258),

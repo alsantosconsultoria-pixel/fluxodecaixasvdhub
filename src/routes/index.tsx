@@ -58,7 +58,8 @@ function FluxoDeCaixa() {
             ? "Somente títulos baixados, alocados pelo mês da data da baixa."
             : "Baixados pela data da baixa e títulos em aberto pela data de vencimento."
         }
-        data={modo === "realizado" ? bundle.realizado : bundle.total}
+        realizado={bundle.realizado}
+        previsto={modo === "total" ? bundle.previsto : undefined}
         exportName={modo === "realizado" ? "fluxo-realizado" : "fluxo-completo"}
       />
     </div>
