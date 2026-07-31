@@ -1,14 +1,23 @@
+import { useMemo, useState } from "react";
 import { Download, Upload, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FluxoCharts } from "@/components/FluxoCharts";
+import { FluxoFiltros } from "@/components/FluxoFiltros";
+import { ProjecaoCards } from "@/components/ProjecaoCards";
 import { useFluxo } from "@/lib/fluxo-store";
 import {
+  FILTROS_VAZIOS,
+  aplicarFiltros,
+  categoriasDe,
   computeTotais,
+  fluxoVazio,
   formatValor,
+  mergeFluxo,
   mesLabel,
-  trimMeses,
+  valorEm,
   type FluxoData,
+  type Filtros,
 } from "@/lib/fluxo";
 
 const cellBase =
@@ -20,7 +29,8 @@ export function FluxoView({
   eyebrow,
   titulo,
   descricao,
-  data,
+  realizado,
+  previsto,
   exportName,
   labelEntradas = "Entradas",
   labelSaidas = "Saídas",
@@ -28,16 +38,30 @@ export function FluxoView({
   eyebrow: string;
   titulo: string;
   descricao: string;
-  data: FluxoData;
+  realizado?: FluxoData;
+  previsto?: FluxoData;
   exportName: string;
   labelEntradas?: string;
   labelSaidas?: string;
 }) {
-  const { fileName, erro, abrirSeletor, exportar } = useFluxo();
-  const view = trimMeses(data);
-  const { totalEntradas, totalSaidas, operacional, inicial, acumulado } =
-    computeTotais(view);
+  const { bundle, fileName, erro, abrirSeletor, exportar } = useFluxo();
+  const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+
+  const baseR = realizado ?? fluxoVazio(bundle.meses);
+  const baseP = previsto ?? fluxoVazio(bundle.meses);
+
+  const [viewR, viewP] = useMemo(
+    () => aplicarFiltros([baseR, baseP], filtros),
+    [baseR, baseP, filtros],
+  );
+  const view = useMemo(() => mergeFluxo(viewR, viewP), [viewR, viewP]);
+
+  const categorias = useMemo(() => categoriasDe(baseR, baseP), [baseR, baseP]);
+
+  const { totalEntradas, totalSaidas, operacional, inicial, acumulado } = computeTotais(view);
+  const previstoTotais = computeTotais(viewP);
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
+  const temPrevisto = viewP.entradas.length + viewP.saidas.length > 0;
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
@@ -60,7 +84,7 @@ export function FluxoView({
             <Upload className="size-4" />
             Importar planilha base
           </Button>
-          <Button onClick={() => exportar(data, exportName)}>
+          <Button onClick={() => exportar(view, exportName)}>
             <Download className="size-4" />
             Baixar backup em Excel
           </Button>
@@ -73,30 +97,50 @@ export function FluxoView({
         </p>
       )}
 
+      <FluxoFiltros
+        meses={bundle.meses}
+        categorias={categorias}
+        filtros={filtros}
+        onChange={setFiltros}
+      />
+
       <section className="grid gap-4 sm:grid-cols-3">
         <SummaryCard
           icon={<TrendingUp className="size-4" />}
           label={`Total de ${labelEntradas.toLowerCase()}`}
           value={sum(totalEntradas)}
+          hint={temPrevisto ? `Previsto: ${formatValor(sum(previstoTotais.totalEntradas))}` : undefined}
           tone="in"
         />
         <SummaryCard
           icon={<TrendingDown className="size-4" />}
           label={`Total de ${labelSaidas.toLowerCase()}`}
           value={sum(totalSaidas)}
+          hint={temPrevisto ? `Previsto: ${formatValor(sum(previstoTotais.totalSaidas))}` : undefined}
           tone="out"
         />
         <SummaryCard
           icon={<Wallet className="size-4" />}
-          label="Saldo acumulado"
+          label={temPrevisto ? "Saldo acumulado projetado" : "Saldo acumulado"}
           value={acumulado[acumulado.length - 1] ?? 0}
           tone="saldo"
         />
       </section>
 
-      <FluxoCharts data={view} />
+      {temPrevisto && <ProjecaoCards realizado={viewR} previsto={viewP} />}
+
+      <FluxoCharts realizado={viewR} previsto={viewP} />
 
       <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
+        <div className="border-b border-flow-grid bg-flow-total-bg px-4 py-2 text-[11px] text-muted-foreground">
+          Valores em <span className="font-medium text-foreground">negrito normal</span> são
+          realizados (referência: <em>Data baixa</em>). Valores{" "}
+          <span className="italic underline decoration-dashed underline-offset-2">
+            sublinhados tracejados
+          </span>{" "}
+          contêm projeção (referência: <em>Data vencimento</em>). Passe o mouse sobre a célula
+          para ver a composição.
+        </div>
         <div className="overflow-auto">
           <table className="w-full border-collapse text-[12px] leading-tight">
             <thead>
@@ -125,6 +169,7 @@ export function FluxoView({
               <Row
                 label={labelEntradas}
                 values={totalEntradas}
+                previstos={previstoTotais.totalEntradas}
                 rowClass="bg-flow-in-bg font-semibold text-flow-in"
               />
               {view.entradas.map((r) => (
@@ -132,6 +177,9 @@ export function FluxoView({
                   key={r.categoria}
                   label={r.categoria}
                   values={r.valores}
+                  previstos={view.meses.map((_, i) =>
+                    valorEm(viewP, "entradas", r.categoria, i),
+                  )}
                   rowClass="bg-card text-flow-in hover:bg-flow-in-bg/50"
                   indent
                 />
@@ -139,6 +187,7 @@ export function FluxoView({
               <Row
                 label={labelSaidas}
                 values={totalSaidas}
+                previstos={previstoTotais.totalSaidas}
                 rowClass="bg-flow-out-bg font-semibold text-flow-out"
               />
               {view.saidas.map((r) => (
@@ -146,6 +195,7 @@ export function FluxoView({
                   key={r.categoria}
                   label={r.categoria}
                   values={r.valores}
+                  previstos={view.meses.map((_, i) => valorEm(viewP, "saidas", r.categoria, i))}
                   rowClass="bg-card text-flow-out hover:bg-flow-out-bg/50"
                   indent
                 />
@@ -156,7 +206,7 @@ export function FluxoView({
                 rowClass="bg-flow-total-bg font-semibold text-foreground"
               />
               <Row
-                label="Saldo Acumulado"
+                label={temPrevisto ? "Saldo Acumulado (projetado)" : "Saldo Acumulado"}
                 values={acumulado}
                 rowClass="bg-flow-total-bg font-semibold text-flow-saldo"
               />
@@ -171,11 +221,13 @@ export function FluxoView({
 function Row({
   label,
   values,
+  previstos,
   rowClass,
   indent,
 }: {
   label: string;
   values: number[];
+  previstos?: number[];
   rowClass: string;
   indent?: boolean;
 }) {
@@ -183,11 +235,29 @@ function Row({
   return (
     <tr className={`${rowClass} transition-colors`}>
       <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`}>{label}</td>
-      {values.map((v, i) => (
-        <td key={i} className={cellBase}>
-          {formatValor(v)}
-        </td>
-      ))}
+      {values.map((v, i) => {
+        const prev = previstos?.[i] ?? 0;
+        const real = v - prev;
+        const temProj = prev !== 0;
+        const title = previstos
+          ? [
+              `Realizado (coluna: Data baixa): ${formatValor(real)}`,
+              `Previsto (coluna: Data vencimento): ${formatValor(prev)}`,
+              `Total: ${formatValor(v)}`,
+            ].join("\n")
+          : undefined;
+        return (
+          <td
+            key={i}
+            title={title}
+            className={`${cellBase} ${
+              temProj ? "italic underline decoration-dashed underline-offset-2" : ""
+            }`}
+          >
+            {formatValor(v)}
+          </td>
+        );
+      })}
     </tr>
   );
 }
@@ -196,11 +266,13 @@ function SummaryCard({
   icon,
   label,
   value,
+  hint,
   tone,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number;
+  hint?: string;
   tone: "in" | "out" | "saldo";
 }) {
   const toneClass = {
@@ -220,6 +292,7 @@ function SummaryCard({
       <p className="mt-3 text-2xl font-semibold tabular-nums text-foreground">
         {formatValor(value)}
       </p>
+      {hint && <p className="mt-1 text-xs italic text-muted-foreground">{hint}</p>}
     </div>
   );
 }
