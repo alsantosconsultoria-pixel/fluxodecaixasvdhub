@@ -211,3 +211,99 @@ export function computeTotais(data: FluxoData, saldoInicial = 0) {
   });
   return { totalEntradas, totalSaidas, operacional, inicial, acumulado };
 }
+
+/* ---------- filtros, merge e utilidades de visão ---------- */
+
+export type Filtros = { de: string | null; ate: string | null; categorias: string[] };
+
+export const FILTROS_VAZIOS: Filtros = { de: null, ate: null, categorias: [] };
+
+function mesKey(m: string) {
+  const [mm, yyyy] = m.split("/").map(Number);
+  return yyyy * 12 + mm;
+}
+
+const somaLinha = (v: number[]) => v.reduce((a, b) => a + b, 0);
+
+/** Soma duas visões (mesmo eixo de meses) categoria a categoria. */
+export function mergeFluxo(a: FluxoData, b: FluxoData): FluxoData {
+  const meses = a.meses.length ? a.meses : b.meses;
+  const mergeRows = (x: Linha[], y: Linha[]): Linha[] => {
+    const map = new Map<string, number[]>();
+    for (const r of [...x, ...y]) {
+      const cur = map.get(r.categoria);
+      if (!cur) map.set(r.categoria, meses.map((_, i) => r.valores[i] ?? 0));
+      else meses.forEach((_, i) => (cur[i] = (cur[i] ?? 0) + (r.valores[i] ?? 0)));
+    }
+    return [...map.entries()]
+      .map(([categoria, valores]) => ({ categoria, valores }))
+      .sort((p, q) => Math.abs(somaLinha(q.valores)) - Math.abs(somaLinha(p.valores)));
+  };
+  return {
+    meses,
+    entradas: mergeRows(a.entradas, b.entradas),
+    saidas: mergeRows(a.saidas, b.saidas),
+  };
+}
+
+export function fluxoVazio(meses: string[]): FluxoData {
+  return { meses, entradas: [], saidas: [] };
+}
+
+export function categoriasDe(...datas: FluxoData[]) {
+  const set = new Set<string>();
+  for (const d of datas) for (const r of [...d.entradas, ...d.saidas]) set.add(r.categoria);
+  return [...set].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function sliceRows(rows: Linha[], keep: number[], categorias: string[]): Linha[] {
+  return rows
+    .filter((r) => !categorias.length || categorias.includes(r.categoria))
+    .map((r) => ({ categoria: r.categoria, valores: keep.map((i) => r.valores[i] ?? 0) }))
+    .filter((r) => r.valores.some((v) => v !== 0));
+}
+
+/**
+ * Aplica os filtros a várias visões que compartilham o mesmo eixo de meses,
+ * mantendo o alinhamento entre elas e removendo meses sem movimento.
+ */
+export function aplicarFiltros(partes: FluxoData[], filtros: Filtros): FluxoData[] {
+  const meses = partes.find((p) => p.meses.length)?.meses ?? [];
+  const dentro = meses
+    .map((_, i) => i)
+    .filter((i) => {
+      const k = mesKey(meses[i]);
+      return (
+        (!filtros.de || k >= mesKey(filtros.de)) && (!filtros.ate || k <= mesKey(filtros.ate))
+      );
+    });
+
+  const parciais = partes.map((p) => ({
+    meses: dentro.map((i) => meses[i]),
+    entradas: sliceRows(p.entradas, dentro, filtros.categorias),
+    saidas: sliceRows(p.saidas, dentro, filtros.categorias),
+  }));
+
+  const comMovimento = dentro.map((_, i) => i).filter((i) =>
+    parciais.some((p) =>
+      [...p.entradas, ...p.saidas].some((r) => (r.valores[i] ?? 0) !== 0),
+    ),
+  );
+
+  return parciais.map((p) => ({
+    meses: comMovimento.map((i) => p.meses[i]),
+    entradas: p.entradas.map((r) => ({
+      categoria: r.categoria,
+      valores: comMovimento.map((i) => r.valores[i] ?? 0),
+    })),
+    saidas: p.saidas.map((r) => ({
+      categoria: r.categoria,
+      valores: comMovimento.map((i) => r.valores[i] ?? 0),
+    })),
+  }));
+}
+
+/** Valor de uma categoria/mês dentro de uma visão. */
+export function valorEm(data: FluxoData, tipo: "entradas" | "saidas", categoria: string, i: number) {
+  return data[tipo].find((r) => r.categoria === categoria)?.valores[i] ?? 0;
+}
