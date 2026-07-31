@@ -33,7 +33,7 @@ function Projecao() {
       eyebrow="Projeção"
       titulo="Pagamentos e receitas futuras"
       descricao="Títulos sem baixa, projetados pela data de vencimento (data de pagamento ignorada)."
-      data={bundle.previsto}
+      previsto={bundle.previsto}
       exportName="projecao-futura"
       labelEntradas="Receitas futuras"
       labelSaidas="Pagamentos futuros"
