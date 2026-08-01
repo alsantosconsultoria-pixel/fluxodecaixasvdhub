@@ -5,7 +5,7 @@ import { FluxoView } from "@/components/FluxoView";
 import { Button } from "@/components/ui/button";
 import { useFluxo } from "@/lib/fluxo-store";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Fluxo de Caixa Mensal | Painel Financeiro" },
