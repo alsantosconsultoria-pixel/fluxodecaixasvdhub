@@ -7,7 +7,7 @@ export type FluxoBundle = {
   total: FluxoData;
 };
 
-type Raw = Record<string, unknown>;
+export type Raw = Record<string, unknown>;
 
 const MESES_ABREV = [
   "JAN",
@@ -46,7 +46,7 @@ function normalizeKey(k: string) {
     .toLowerCase();
 }
 
-function pick(row: Raw, wanted: string): unknown {
+export function pick(row: Raw, wanted: string): unknown {
   const target = normalizeKey(wanted);
   for (const k of Object.keys(row)) {
     if (normalizeKey(k) === target) return row[k];
@@ -55,7 +55,7 @@ function pick(row: Raw, wanted: string): unknown {
 }
 
 /** Converts any supported date cell into a "MM/YYYY" reference. */
-function parseMes(value: unknown): string | null {
+export function parseMes(value: unknown): string | null {
   if (value == null || value === "") return null;
   if (value instanceof Date) {
     return `${String(value.getMonth() + 1).padStart(2, "0")}/${value.getFullYear()}`;
@@ -70,7 +70,7 @@ function parseMes(value: unknown): string | null {
   return null;
 }
 
-function parseValor(value: unknown): number {
+export function parseValor(value: unknown): number {
   if (typeof value === "number") return value;
   if (value == null) return 0;
   const s = String(value)

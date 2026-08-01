@@ -9,10 +9,15 @@ import {
   trimMeses,
   type FluxoBundle,
   type FluxoData,
+  type Raw,
 } from "@/lib/fluxo";
+import { registrarLog } from "@/lib/logs";
+
+const STORAGE_KEY = "fluxo:planilha";
 
 type Ctx = {
   bundle: FluxoBundle;
+  rows: Raw[];
   fileName: string | null;
   erro: string | null;
   importar: (file: File) => Promise<void>;
@@ -26,9 +31,23 @@ type Ctx = {
 
 const FluxoContext = createContext<Ctx | null>(null);
 
+function lerCache(): { rows: Raw[]; fileName: string } | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as { rows: Raw[]; fileName: string }) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function FluxoProvider({ children }: { children: ReactNode }) {
-  const [bundle, setBundle] = useState<FluxoBundle>(baseData as FluxoBundle);
-  const [fileName, setFileName] = useState<string | null>(null);
+  const cache = typeof window === "undefined" ? null : lerCache();
+  const [bundle, setBundle] = useState<FluxoBundle>(() =>
+    cache ? buildFluxo(cache.rows) : (baseData as FluxoBundle),
+  );
+  const [rows, setRows] = useState<Raw[]>(() => cache?.rows ?? []);
+  const [fileName, setFileName] = useState<string | null>(cache?.fileName ?? null);
   const [erro, setErro] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -38,16 +57,27 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       try {
         const buf = await file.arrayBuffer();
         const wb = XLSX.read(buf, { cellDates: true });
-        const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(
-          wb.Sheets[wb.SheetNames[0]],
-        );
-        const next = buildFluxo(rows);
+        const lidas = XLSX.utils.sheet_to_json<Raw>(wb.Sheets[wb.SheetNames[0]]);
+        const next = buildFluxo(lidas);
         if (!next.meses.length) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
           return;
         }
         setBundle(next);
+        setRows(lidas);
         setFileName(file.name);
+        try {
+          window.localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ rows: lidas, fileName: file.name }),
+          );
+        } catch {
+          /* planilha grande demais para o cache local */
+        }
+        void registrarLog(
+          "importacao",
+          `Base atualizada com "${file.name}" (${lidas.length} lançamentos)`,
+        );
       } catch {
         setErro("Não foi possível ler o arquivo. Envie um .xlsx válido.");
       }
@@ -58,7 +88,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       const { totalEntradas, totalSaidas, operacional, inicial, acumulado } =
         computeTotais(view);
       const header = ["Categoria", ...view.meses.map(mesLabel)];
-      const rows: (string | number)[][] = [
+      const linhas: (string | number)[][] = [
         header,
         ["Saldo Inicial Caixa", ...inicial],
         ["Entradas", ...totalEntradas],
@@ -68,16 +98,18 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         ["Saldo Operacional", ...operacional],
         ["Saldo Acumulado", ...acumulado],
       ];
-      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const ws = XLSX.utils.aoa_to_sheet(linhas);
       ws["!cols"] = header.map((_, i) => ({ wch: i === 0 ? 42 : 14 }));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Fluxo de Caixa");
       const hoje = new Date().toISOString().slice(0, 10);
       XLSX.writeFile(wb, `backup-${nome}-${hoje}.xlsx`);
+      void registrarLog("exportacao", `Backup exportado (${nome})`);
     }
 
     return {
       bundle,
+      rows,
       fileName,
       erro,
       importar,
@@ -92,7 +124,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, fileName, erro]);
+  }, [bundle, rows, fileName, erro]);
 
   return (
     <FluxoContext.Provider value={value}>
