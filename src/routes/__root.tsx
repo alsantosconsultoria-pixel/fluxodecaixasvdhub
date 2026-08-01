@@ -14,6 +14,11 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { FluxoProvider } from "@/lib/fluxo-store";
+import { SessionProvider, useSession } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
+import { registrarLog } from "@/lib/logs";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
 
 function NotFoundComponent() {
@@ -81,11 +86,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Painel Financeiro | Fluxo de Caixa" },
+      {
+        name: "description",
+        content:
+          "Painel financeiro com fluxo de caixa, projeções, KPIs e controle de acesso por usuário.",
+      },
+      { property: "og:title", content: "Painel Financeiro | Fluxo de Caixa" },
+      {
+        property: "og:description",
+        content: "Fluxo de caixa, projeções e apresentação de resultados financeiros.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -118,31 +129,55 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function SairButton() {
+  const { user, perfil } = useSession();
+  if (!user) return null;
+  return (
+    <div className="ml-auto flex items-center gap-3">
+      <span className="hidden text-xs text-muted-foreground sm:inline">
+        {perfil?.nome || user.email}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={async () => {
+          await registrarLog("logout", "Saída do painel");
+          await supabase.auth.signOut();
+          window.location.href = "/auth";
+        }}
+      >
+        <LogOut className="size-3.5" />
+        Sair
+      </Button>
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FluxoProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-gradient-page">
-            <AppSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="flex h-12 items-center gap-2 border-b border-flow-grid bg-card/70 px-2 backdrop-blur">
-                <SidebarTrigger />
-                <span className="text-sm font-medium text-foreground">
-                  Painel Financeiro
-                </span>
-              </header>
-              <main className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 md:px-8">
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <Outlet />
-              </main>
+      <SessionProvider>
+        <FluxoProvider>
+          <SidebarProvider>
+            <div className="flex min-h-screen w-full bg-gradient-page">
+              <AppSidebar />
+              <div className="flex min-w-0 flex-1 flex-col">
+                <header className="flex h-12 items-center gap-2 border-b border-flow-grid bg-card/70 px-2 backdrop-blur">
+                  <SidebarTrigger />
+                  <span className="text-sm font-medium text-foreground">Painel Financeiro</span>
+                  <SairButton />
+                </header>
+                <main className="min-w-0 flex-1 overflow-x-hidden px-4 py-6 md:px-8">
+                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                  <Outlet />
+                </main>
+              </div>
             </div>
-          </div>
-        </SidebarProvider>
-      </FluxoProvider>
+          </SidebarProvider>
+        </FluxoProvider>
+      </SessionProvider>
     </QueryClientProvider>
   );
 }
-

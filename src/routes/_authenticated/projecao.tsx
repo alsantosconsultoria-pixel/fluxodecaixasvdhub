@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FluxoView } from "@/components/FluxoView";
 import { useFluxo } from "@/lib/fluxo-store";
 
-export const Route = createFileRoute("/projecao")({
+export const Route = createFileRoute("/_authenticated/projecao")({
   head: () => ({
     meta: [
       { title: "Projeções Futuras | Painel Financeiro" },
