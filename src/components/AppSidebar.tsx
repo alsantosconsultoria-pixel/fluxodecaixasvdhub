@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Building2,
   CalendarClock,
   History,
   LayoutDashboard,
@@ -21,6 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useEmpresa } from "@/lib/empresa";
 import { useSession } from "@/lib/session";
 
 const financeiro = [
@@ -31,7 +33,8 @@ const financeiro = [
 
 const administracao = [
   { title: "Editar KPIs", url: "/kpis", icon: Wand2 },
-  { title: "Usuários", url: "/usuarios", icon: Users, adminOnly: true },
+  { title: "Usuários", url: "/usuarios", icon: Users },
+  { title: "Empresa", url: "/empresa", icon: Building2 },
   { title: "Registros", url: "/logs", icon: History },
 ];
 
@@ -40,6 +43,8 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
   const { isAdmin } = useSession();
+  const { empresa } = useEmpresa();
+
 
   return (
     <Sidebar collapsible="icon">
