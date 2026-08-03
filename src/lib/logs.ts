@@ -5,7 +5,8 @@ export type TipoLog =
   | "logout"
   | "importacao"
   | "exportacao"
-  | "kpi_alterado";
+  | "kpi_alterado"
+  | "empresa_atualizada";
 
 /** Grava um registro de auditoria para o usuário logado (falha em silêncio). */
 export async function registrarLog(tipo: TipoLog, descricao: string) {
