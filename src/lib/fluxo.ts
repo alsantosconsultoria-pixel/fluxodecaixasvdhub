@@ -90,11 +90,10 @@ type Lancamento = {
 };
 
 /**
- * Reference-date rule:
- * - Settled entries (with "Data baixa"): use the settlement month, for both
- *   payables and receivables.
- * - Open/future entries (no "Data baixa"): use the due date ("Data vencimento"),
- *   ignoring any payment date.
+ * Reference rules (validated against the base spreadsheet):
+ * - Realizado: Conciliado = "Sim" -> month from "Data baixa", amount "Total pago".
+ * - Provisão:  Conciliado = "Não" -> month from "Data vencimento", amount "Valor título".
+ * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
 function parseLancamentos(rows: Raw[]): Lancamento[] {
   const out: Lancamento[] = [];
@@ -107,16 +106,26 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
       .toLowerCase();
     if (operacao !== "pagar" && operacao !== "receber") continue;
 
-    const baixa = parseMes(pick(row, "Data baixa"));
-    const vencimento = parseMes(pick(row, "Data vencimento"));
-    const realizado = Boolean(baixa);
-    const mes = baixa ?? vencimento ?? parseMes(pick(row, "Mês referência"));
+    const conciliado = String(pick(row, "Conciliado") ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+    const realizado = conciliado === "sim";
+
+    const mes = realizado
+      ? parseMes(pick(row, "Data baixa"))
+      : parseMes(pick(row, "Data vencimento"));
     if (!mes) continue;
 
     const ano = Number(mes.split("/")[1]);
     if (ano < 2023 || ano > 2030) continue;
 
-    const valor = parseValor(pick(row, "Valor título"));
+    const valor = parseValor(
+      realizado ? (pick(row, "Total pago") ?? pick(row, "Valor pago")) : pick(row, "Valor título"),
+    );
+    if (!valor) continue;
+
     out.push({
       mes,
       categoria,
@@ -127,6 +136,7 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
   }
   return out;
 }
+
 
 function sortMeses(meses: Iterable<string>) {
   return [...meses].sort((a, b) => {
