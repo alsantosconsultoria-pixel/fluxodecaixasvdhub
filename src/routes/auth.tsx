@@ -32,6 +32,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { empresa } = useEmpresa();
   const [bootstrap, setBootstrap] = useState<boolean | null>(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
