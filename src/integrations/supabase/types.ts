@@ -41,6 +41,30 @@ export type Database = {
         }
         Relationships: []
       }
+      company_settings: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          id: string
+          logo_url: string | null
+          nome: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          logo_url?: string | null
+          nome?: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          id?: string
+          logo_url?: string | null
+          nome?: string
+        }
+        Relationships: []
+      }
       kpi_configs: {
         Row: {
           coluna: string

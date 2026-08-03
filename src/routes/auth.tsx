@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { criarPrimeiroAdmin, precisaBootstrap } from "@/lib/admin.functions";
+import { useEmpresa } from "@/lib/empresa";
 import { registrarLog } from "@/lib/logs";
 
 export const Route = createFileRoute("/auth")({
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { empresa } = useEmpresa();
   const [bootstrap, setBootstrap] = useState<boolean | null>(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -91,17 +93,28 @@ function AuthPage() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl border border-flow-grid bg-card p-6 shadow-elegant">
-        <div className="mb-5 flex items-center gap-2">
-          <span className="inline-flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Lock className="size-4" />
-          </span>
+        <div className="mb-5 flex flex-col items-center gap-3 text-center">
+          {empresa?.logo_url ? (
+            <img
+              src={empresa.logo_url}
+              alt={`Logo ${empresa.nome}`}
+              className="max-h-16 max-w-[180px] object-contain"
+            />
+          ) : (
+            <span className="inline-flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <Lock className="size-5" />
+            </span>
+          )}
           <div>
-            <h1 className="text-base font-semibold tracking-tight">Painel Financeiro</h1>
+            <h1 className="text-base font-semibold tracking-tight">
+              {empresa?.nome ?? "Painel Financeiro"}
+            </h1>
             <p className="text-xs text-muted-foreground">
               {bootstrap ? "Crie o administrador inicial" : "Acesso restrito"}
             </p>
           </div>
         </div>
+
 
         <form onSubmit={bootstrap ? criarAdmin : entrar} className="space-y-3">
           {bootstrap && (
