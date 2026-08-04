@@ -24,10 +24,34 @@ const MESES_ABREV = [
   "DEZ",
 ];
 
-export function mesLabel(m: string) {
-  const [mm, yyyy] = m.split("/");
+export type Granularidade = "mes" | "dia";
+
+/** Rótulo de um período ("MM/YYYY" ou "DD/MM/YYYY"). */
+export function periodoLabel(p: string) {
+  const partes = p.split("/");
+  if (partes.length === 3) {
+    const [dd, mm, yyyy] = partes;
+    return `${dd}/${MESES_ABREV[Number(mm) - 1] ?? mm}/${yyyy.slice(2)}`;
+  }
+  const [mm, yyyy] = partes;
   return `${MESES_ABREV[Number(mm) - 1] ?? mm}/${yyyy}`;
 }
+
+/** Alias histórico. */
+export const mesLabel = periodoLabel;
+
+/** Primeiro e último dia (ISO) cobertos pelo período. */
+export function periodoRangeISO(p: string): [string, string] {
+  const partes = p.split("/");
+  if (partes.length === 3) {
+    const iso = `${partes[2]}-${partes[1]}-${partes[0]}`;
+    return [iso, iso];
+  }
+  const [mm, yyyy] = partes;
+  const ultimo = new Date(Number(yyyy), Number(mm), 0).getDate();
+  return [`${yyyy}-${mm}-01`, `${yyyy}-${mm}-${String(ultimo).padStart(2, "0")}`];
+}
+
 
 export function formatValor(v: number) {
   if (!v) return "-";
