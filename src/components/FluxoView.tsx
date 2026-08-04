@@ -87,6 +87,22 @@ export function FluxoView({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {onGranularidade && (
+            <div className="inline-flex rounded-md border border-flow-grid p-0.5">
+              {(["dia", "mes"] as const).map((g) => (
+                <Button
+                  key={g}
+                  size="sm"
+                  variant={granularidade === g ? "default" : "ghost"}
+                  className="h-8 px-3 text-xs"
+                  disabled={g === "dia" && !granularidadeDisponivel}
+                  onClick={() => onGranularidade(g)}
+                >
+                  {g === "dia" ? "Por dia" : "Por mês"}
+                </Button>
+              ))}
+            </div>
+          )}
           <Button variant="outline" onClick={abrirSeletor}>
             <Upload className="size-4" />
             Importar planilha base
@@ -104,12 +120,20 @@ export function FluxoView({
         </p>
       )}
 
+      {onGranularidade && !granularidadeDisponivel && (
+        <p className="rounded-md border border-flow-grid bg-flow-total-bg px-3 py-2 text-xs text-muted-foreground">
+          A visão diária exige a planilha base importada nesta sessão. Importe o arquivo para
+          detalhar dia a dia.
+        </p>
+      )}
+
       <FluxoFiltros
-        meses={bundle.meses}
+        meses={baseR.meses.length ? baseR.meses : baseP.meses}
         categorias={categorias}
         filtros={filtros}
         onChange={setFiltros}
       />
+
 
       <section className="grid gap-4 sm:grid-cols-3">
         <SummaryCard
