@@ -34,6 +34,9 @@ export function FluxoView({
   exportName,
   labelEntradas = "Entradas",
   labelSaidas = "Saídas",
+  granularidade,
+  onGranularidade,
+  granularidadeDisponivel = true,
 }: {
   eyebrow: string;
   titulo: string;
@@ -43,9 +46,13 @@ export function FluxoView({
   exportName: string;
   labelEntradas?: string;
   labelSaidas?: string;
+  granularidade?: "mes" | "dia";
+  onGranularidade?: (g: "mes" | "dia") => void;
+  granularidadeDisponivel?: boolean;
 }) {
   const { bundle, fileName, erro, abrirSeletor, exportar } = useFluxo();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+
 
   const baseR = realizado ?? fluxoVazio(bundle.meses);
   const baseP = previsto ?? fluxoVazio(bundle.meses);
