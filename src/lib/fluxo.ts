@@ -94,6 +94,27 @@ export function parseMes(value: unknown): string | null {
   return null;
 }
 
+/** Converts any supported date cell into a "DD/MM/YYYY" reference. */
+export function parseDia(value: unknown): string | null {
+  if (value == null || value === "") return null;
+  if (value instanceof Date) {
+    return `${String(value.getDate()).padStart(2, "0")}/${String(
+      value.getMonth() + 1,
+    ).padStart(2, "0")}/${value.getFullYear()}`;
+  }
+  const s = String(value).trim();
+  const d = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (d) return `${d[1].padStart(2, "0")}/${d[2].padStart(2, "0")}/${d[3]}`;
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  return null;
+}
+
+/** Período conforme a granularidade escolhida. */
+export function parsePeriodo(value: unknown, gran: Granularidade): string | null {
+  return gran === "dia" ? parseDia(value) : parseMes(value);
+}
+
 export function parseValor(value: unknown): number {
   if (typeof value === "number") return value;
   if (value == null) return 0;
