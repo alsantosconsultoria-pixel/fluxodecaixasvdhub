@@ -53,6 +53,11 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
   const [erro, setErro] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const bundleDia = useMemo<FluxoBundle>(
+    () => (rows.length ? buildFluxo(rows, "dia") : bundle),
+    [rows, bundle],
+  );
+
   const value = useMemo<Ctx>(() => {
     async function importar(file: File) {
       setErro(null);
