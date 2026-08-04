@@ -33,7 +33,7 @@ export function ProjecaoCards({
         </span>
         <div>
           <h2 className="text-sm font-semibold tracking-tight text-foreground">
-            Projeção mensal — pagamentos e receitas futuras
+            Projeção por período — pagamentos e receitas futuras
           </h2>
           <p className="text-xs text-muted-foreground">
             Títulos em aberto pela data de vencimento · saldo projetado acumulado inclui os

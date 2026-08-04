@@ -17,6 +17,8 @@ const STORAGE_KEY = "fluxo:planilha";
 
 type Ctx = {
   bundle: FluxoBundle;
+  bundleDia: FluxoBundle;
+  temDetalheDiario: boolean;
   rows: Raw[];
   fileName: string | null;
   erro: string | null;
@@ -50,6 +52,11 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
   const [fileName, setFileName] = useState<string | null>(cache?.fileName ?? null);
   const [erro, setErro] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const bundleDia = useMemo<FluxoBundle>(
+    () => (rows.length ? buildFluxo(rows, "dia") : bundle),
+    [rows, bundle],
+  );
 
   const value = useMemo<Ctx>(() => {
     async function importar(file: File) {
@@ -109,6 +116,8 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
 
     return {
       bundle,
+      bundleDia,
+      temDetalheDiario: rows.length > 0,
       rows,
       fileName,
       erro,
@@ -124,7 +133,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, rows, fileName, erro]);
+  }, [bundle, bundleDia, rows, fileName, erro]);
 
   return (
     <FluxoContext.Provider value={value}>

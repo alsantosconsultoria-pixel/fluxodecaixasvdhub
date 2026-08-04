@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
   CalendarClock,
+  FileBarChart,
   History,
   LayoutDashboard,
   Presentation,
@@ -27,6 +28,7 @@ import { useSession } from "@/lib/session";
 
 const financeiro = [
   { title: "Fluxo de Caixa", url: "/", icon: LayoutDashboard },
+  { title: "DRE Gerencial", url: "/dre", icon: FileBarChart },
   { title: "Projeções futuras", url: "/projecao", icon: CalendarClock },
   { title: "Apresentação", url: "/apresentacao", icon: Presentation },
 ];

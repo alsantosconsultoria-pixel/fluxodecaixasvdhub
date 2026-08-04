@@ -24,10 +24,34 @@ const MESES_ABREV = [
   "DEZ",
 ];
 
-export function mesLabel(m: string) {
-  const [mm, yyyy] = m.split("/");
+export type Granularidade = "mes" | "dia";
+
+/** Rótulo de um período ("MM/YYYY" ou "DD/MM/YYYY"). */
+export function periodoLabel(p: string) {
+  const partes = p.split("/");
+  if (partes.length === 3) {
+    const [dd, mm, yyyy] = partes;
+    return `${dd}/${MESES_ABREV[Number(mm) - 1] ?? mm}/${yyyy.slice(2)}`;
+  }
+  const [mm, yyyy] = partes;
   return `${MESES_ABREV[Number(mm) - 1] ?? mm}/${yyyy}`;
 }
+
+/** Alias histórico. */
+export const mesLabel = periodoLabel;
+
+/** Primeiro e último dia (ISO) cobertos pelo período. */
+export function periodoRangeISO(p: string): [string, string] {
+  const partes = p.split("/");
+  if (partes.length === 3) {
+    const iso = `${partes[2]}-${partes[1]}-${partes[0]}`;
+    return [iso, iso];
+  }
+  const [mm, yyyy] = partes;
+  const ultimo = new Date(Number(yyyy), Number(mm), 0).getDate();
+  return [`${yyyy}-${mm}-01`, `${yyyy}-${mm}-${String(ultimo).padStart(2, "0")}`];
+}
+
 
 export function formatValor(v: number) {
   if (!v) return "-";
@@ -70,6 +94,27 @@ export function parseMes(value: unknown): string | null {
   return null;
 }
 
+/** Converts any supported date cell into a "DD/MM/YYYY" reference. */
+export function parseDia(value: unknown): string | null {
+  if (value == null || value === "") return null;
+  if (value instanceof Date) {
+    return `${String(value.getDate()).padStart(2, "0")}/${String(
+      value.getMonth() + 1,
+    ).padStart(2, "0")}/${value.getFullYear()}`;
+  }
+  const s = String(value).trim();
+  const d = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (d) return `${d[1].padStart(2, "0")}/${d[2].padStart(2, "0")}/${d[3]}`;
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  return null;
+}
+
+/** Período conforme a granularidade escolhida. */
+export function parsePeriodo(value: unknown, gran: Granularidade): string | null {
+  return gran === "dia" ? parseDia(value) : parseMes(value);
+}
+
 export function parseValor(value: unknown): number {
   if (typeof value === "number") return value;
   if (value == null) return 0;
@@ -95,7 +140,7 @@ type Lancamento = {
  * - Provisão:  Conciliado = "Não" -> month from "Data vencimento", amount "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
-function parseLancamentos(rows: Raw[]): Lancamento[] {
+function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
   const out: Lancamento[] = [];
   for (const row of rows) {
     const categoria = String(pick(row, "Categoria financeira") ?? "").trim();
@@ -114,11 +159,12 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
     const realizado = conciliado === "sim";
 
     const mes = realizado
-      ? parseMes(pick(row, "Data baixa"))
-      : parseMes(pick(row, "Data vencimento"));
+      ? parsePeriodo(pick(row, "Data baixa"), gran)
+      : parsePeriodo(pick(row, "Data vencimento"), gran);
     if (!mes) continue;
 
-    const ano = Number(mes.split("/")[1]);
+    const partes = mes.split("/");
+    const ano = Number(partes[partes.length - 1]);
     if (ano < 2023 || ano > 2030) continue;
 
     const valor = parseValor(
@@ -139,12 +185,9 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
 
 
 function sortMeses(meses: Iterable<string>) {
-  return [...meses].sort((a, b) => {
-    const [ma, ya] = a.split("/").map(Number);
-    const [mb, yb] = b.split("/").map(Number);
-    return ya - yb || ma - mb;
-  });
+  return [...meses].sort((a, b) => periodoRangeISO(a)[0].localeCompare(periodoRangeISO(b)[0]));
 }
+
 
 function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
   const buckets = {
@@ -173,8 +216,8 @@ function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
 }
 
 /** Aggregates raw spreadsheet rows into realized / projected / total matrices. */
-export function buildFluxo(rows: Raw[]): FluxoBundle {
-  const lancamentos = parseLancamentos(rows);
+export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundle {
+  const lancamentos = parseLancamentos(rows, gran);
   const meses = sortMeses(new Set(lancamentos.map((l) => l.mes)));
   return {
     meses,
@@ -224,14 +267,26 @@ export function computeTotais(data: FluxoData, saldoInicial = 0) {
 
 /* ---------- filtros, merge e utilidades de visão ---------- */
 
+/** `de` e `ate` são datas ISO ("YYYY-MM-DD"), permitindo recorte por dia. */
 export type Filtros = { de: string | null; ate: string | null; categorias: string[] };
 
 export const FILTROS_VAZIOS: Filtros = { de: null, ate: null, categorias: [] };
 
-function mesKey(m: string) {
-  const [mm, yyyy] = m.split("/").map(Number);
-  return yyyy * 12 + mm;
+/** Intervalo ISO coberto por um conjunto de períodos. */
+export function limitesPeriodos(periodos: string[]): [string, string] | null {
+  if (!periodos.length) return null;
+  const inicios = periodos.map((p) => periodoRangeISO(p)[0]).sort();
+  const fins = periodos.map((p) => periodoRangeISO(p)[1]).sort();
+  return [inicios[0], fins[fins.length - 1]];
 }
+
+function dentroDoIntervalo(periodo: string, de: string | null, ate: string | null) {
+  const [ini, fim] = periodoRangeISO(periodo);
+  if (de && fim < de) return false;
+  if (ate && ini > ate) return false;
+  return true;
+}
+
 
 const somaLinha = (v: number[]) => v.reduce((a, b) => a + b, 0);
 
@@ -281,12 +336,8 @@ export function aplicarFiltros(partes: FluxoData[], filtros: Filtros): FluxoData
   const meses = partes.find((p) => p.meses.length)?.meses ?? [];
   const dentro = meses
     .map((_, i) => i)
-    .filter((i) => {
-      const k = mesKey(meses[i]);
-      return (
-        (!filtros.de || k >= mesKey(filtros.de)) && (!filtros.ate || k <= mesKey(filtros.ate))
-      );
-    });
+    .filter((i) => dentroDoIntervalo(meses[i], filtros.de, filtros.ate));
+
 
   const parciais = partes.map((p) => ({
     meses: dentro.map((i) => meses[i]),

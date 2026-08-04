@@ -153,7 +153,7 @@ export function FluxoCharts({
       <ChartLegend />
 
       <Panel
-        title="Entradas, saídas e saldo acumulado por mês"
+        title="Entradas, saídas e saldo acumulado por período"
         subtitle="Tons sólidos: valores baixados (data da baixa) · Tons claros: valores previstos (data de vencimento)"
       >
         <ResponsiveContainer width="100%" height={340}>
