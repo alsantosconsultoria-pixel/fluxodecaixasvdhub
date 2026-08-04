@@ -116,6 +116,8 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
 
     return {
       bundle,
+      bundleDia,
+      temDetalheDiario: rows.length > 0,
       rows,
       fileName,
       erro,
@@ -131,7 +133,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, rows, fileName, erro]);
+  }, [bundle, bundleDia, rows, fileName, erro]);
 
   return (
     <FluxoContext.Provider value={value}>
