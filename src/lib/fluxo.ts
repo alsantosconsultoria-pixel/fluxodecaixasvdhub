@@ -267,14 +267,26 @@ export function computeTotais(data: FluxoData, saldoInicial = 0) {
 
 /* ---------- filtros, merge e utilidades de visão ---------- */
 
+/** `de` e `ate` são datas ISO ("YYYY-MM-DD"), permitindo recorte por dia. */
 export type Filtros = { de: string | null; ate: string | null; categorias: string[] };
 
 export const FILTROS_VAZIOS: Filtros = { de: null, ate: null, categorias: [] };
 
-function mesKey(m: string) {
-  const [mm, yyyy] = m.split("/").map(Number);
-  return yyyy * 12 + mm;
+/** Intervalo ISO coberto por um conjunto de períodos. */
+export function limitesPeriodos(periodos: string[]): [string, string] | null {
+  if (!periodos.length) return null;
+  const inicios = periodos.map((p) => periodoRangeISO(p)[0]).sort();
+  const fins = periodos.map((p) => periodoRangeISO(p)[1]).sort();
+  return [inicios[0], fins[fins.length - 1]];
 }
+
+function dentroDoIntervalo(periodo: string, de: string | null, ate: string | null) {
+  const [ini, fim] = periodoRangeISO(periodo);
+  if (de && fim < de) return false;
+  if (ate && ini > ate) return false;
+  return true;
+}
+
 
 const somaLinha = (v: number[]) => v.reduce((a, b) => a + b, 0);
 
