@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedApresentacaoRouteImport } from './routes/_authenticated/apresentacao'
+import { Route as AuthenticatedDreRouteImport } from './routes/_authenticated/dre'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedKpisRouteImport } from './routes/_authenticated/kpis'
 import { Route as AuthenticatedLogsRouteImport } from './routes/_authenticated/logs'
@@ -39,6 +40,11 @@ const AuthenticatedApresentacaoRoute =
     path: '/apresentacao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDreRoute = AuthenticatedDreRouteImport.update({
+  id: '/dre',
+  path: '/dre',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEmpresaRoute = AuthenticatedEmpresaRouteImport.update({
   id: '/empresa',
   path: '/empresa',
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
   '/logs': typeof AuthenticatedLogsRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/_authenticated/dre': typeof AuthenticatedDreRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
   '/_authenticated/kpis': typeof AuthenticatedKpisRoute
   '/_authenticated/logs': typeof AuthenticatedLogsRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/apresentacao'
+    | '/dre'
     | '/empresa'
     | '/kpis'
     | '/logs'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/apresentacao'
+    | '/dre'
     | '/empresa'
     | '/kpis'
     | '/logs'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/apresentacao'
+    | '/_authenticated/dre'
     | '/_authenticated/empresa'
     | '/_authenticated/kpis'
     | '/_authenticated/logs'
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedApresentacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dre': {
+      id: '/_authenticated/dre'
+      path: '/dre'
+      fullPath: '/dre'
+      preLoaderRoute: typeof AuthenticatedDreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/empresa': {
       id: '/_authenticated/empresa'
       path: '/empresa'
@@ -206,6 +225,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApresentacaoRoute: typeof AuthenticatedApresentacaoRoute
+  AuthenticatedDreRoute: typeof AuthenticatedDreRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
   AuthenticatedKpisRoute: typeof AuthenticatedKpisRoute
   AuthenticatedLogsRoute: typeof AuthenticatedLogsRoute
@@ -216,6 +236,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApresentacaoRoute: AuthenticatedApresentacaoRoute,
+  AuthenticatedDreRoute: AuthenticatedDreRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
   AuthenticatedKpisRoute: AuthenticatedKpisRoute,
   AuthenticatedLogsRoute: AuthenticatedLogsRoute,
