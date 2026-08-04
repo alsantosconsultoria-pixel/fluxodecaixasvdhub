@@ -17,6 +17,8 @@ const STORAGE_KEY = "fluxo:planilha";
 
 type Ctx = {
   bundle: FluxoBundle;
+  bundleDia: FluxoBundle;
+  temDetalheDiario: boolean;
   rows: Raw[];
   fileName: string | null;
   erro: string | null;
