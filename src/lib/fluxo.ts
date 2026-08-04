@@ -140,7 +140,7 @@ type Lancamento = {
  * - Provisão:  Conciliado = "Não" -> month from "Data vencimento", amount "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
-function parseLancamentos(rows: Raw[]): Lancamento[] {
+function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
   const out: Lancamento[] = [];
   for (const row of rows) {
     const categoria = String(pick(row, "Categoria financeira") ?? "").trim();
@@ -159,11 +159,12 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
     const realizado = conciliado === "sim";
 
     const mes = realizado
-      ? parseMes(pick(row, "Data baixa"))
-      : parseMes(pick(row, "Data vencimento"));
+      ? parsePeriodo(pick(row, "Data baixa"), gran)
+      : parsePeriodo(pick(row, "Data vencimento"), gran);
     if (!mes) continue;
 
-    const ano = Number(mes.split("/")[1]);
+    const partes = mes.split("/");
+    const ano = Number(partes[partes.length - 1]);
     if (ano < 2023 || ano > 2030) continue;
 
     const valor = parseValor(
@@ -184,12 +185,9 @@ function parseLancamentos(rows: Raw[]): Lancamento[] {
 
 
 function sortMeses(meses: Iterable<string>) {
-  return [...meses].sort((a, b) => {
-    const [ma, ya] = a.split("/").map(Number);
-    const [mb, yb] = b.split("/").map(Number);
-    return ya - yb || ma - mb;
-  });
+  return [...meses].sort((a, b) => periodoRangeISO(a)[0].localeCompare(periodoRangeISO(b)[0]));
 }
+
 
 function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
   const buckets = {
