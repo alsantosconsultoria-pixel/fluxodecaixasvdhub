@@ -336,12 +336,8 @@ export function aplicarFiltros(partes: FluxoData[], filtros: Filtros): FluxoData
   const meses = partes.find((p) => p.meses.length)?.meses ?? [];
   const dentro = meses
     .map((_, i) => i)
-    .filter((i) => {
-      const k = mesKey(meses[i]);
-      return (
-        (!filtros.de || k >= mesKey(filtros.de)) && (!filtros.ate || k <= mesKey(filtros.ate))
-      );
-    });
+    .filter((i) => dentroDoIntervalo(meses[i], filtros.de, filtros.ate));
+
 
   const parciais = partes.map((p) => ({
     meses: dentro.map((i) => meses[i]),
