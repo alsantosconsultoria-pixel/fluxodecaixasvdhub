@@ -8,17 +8,17 @@ import { useFluxo } from "@/lib/fluxo-store";
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Fluxo de Caixa Mensal | Painel Financeiro" },
+      { title: "Fluxo de Caixa Diário | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Fluxo de caixa mensal por categoria financeira, usando a data da baixa para realizados e vencimento para títulos em aberto.",
+          "Fluxo de caixa por dia e por categoria financeira, usando a data da baixa para realizados e o vencimento para títulos em aberto.",
       },
-      { property: "og:title", content: "Fluxo de Caixa Mensal | Painel Financeiro" },
+      { property: "og:title", content: "Fluxo de Caixa Diário | Painel Financeiro" },
       {
         property: "og:description",
         content:
-          "Entradas e saídas por categoria financeira, saldo operacional e saldo acumulado por mês.",
+          "Entradas e saídas por categoria financeira, saldo operacional e saldo acumulado com filtro de período por dia.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -28,8 +28,11 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function FluxoDeCaixa() {
-  const { bundle } = useFluxo();
+  const { bundle, bundleDia, temDetalheDiario } = useFluxo();
   const [modo, setModo] = useState<"realizado" | "total">("realizado");
+  const [gran, setGran] = useState<"dia" | "mes">(temDetalheDiario ? "dia" : "mes");
+
+  const atual = gran === "dia" && temDetalheDiario ? bundleDia : bundle;
 
   return (
     <div className="space-y-4">
@@ -55,12 +58,15 @@ function FluxoDeCaixa() {
         titulo="Fluxo de Caixa"
         descricao={
           modo === "realizado"
-            ? "Somente títulos baixados, alocados pelo mês da data da baixa."
-            : "Baixados pela data da baixa e títulos em aberto pela data de vencimento."
+            ? `Somente títulos baixados (Conciliado = Sim), alocados pel${gran === "dia" ? "o dia" : "o mês"} da data da baixa.`
+            : `Baixados pela data da baixa e títulos em aberto pela data de vencimento, agrupados por ${gran === "dia" ? "dia" : "mês"}.`
         }
-        realizado={bundle.realizado}
-        previsto={modo === "total" ? bundle.previsto : undefined}
+        realizado={atual.realizado}
+        previsto={modo === "total" ? atual.previsto : undefined}
         exportName={modo === "realizado" ? "fluxo-realizado" : "fluxo-completo"}
+        granularidade={gran}
+        onGranularidade={setGran}
+        granularidadeDisponivel={temDetalheDiario}
       />
     </div>
   );
