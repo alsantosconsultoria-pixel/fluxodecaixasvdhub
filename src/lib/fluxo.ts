@@ -216,8 +216,8 @@ function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
 }
 
 /** Aggregates raw spreadsheet rows into realized / projected / total matrices. */
-export function buildFluxo(rows: Raw[]): FluxoBundle {
-  const lancamentos = parseLancamentos(rows);
+export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundle {
+  const lancamentos = parseLancamentos(rows, gran);
   const meses = sortMeses(new Set(lancamentos.map((l) => l.mes)));
   return {
     meses,
