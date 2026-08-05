@@ -28,6 +28,7 @@ import { useSession } from "@/lib/session";
 
 const financeiro = [
   { title: "Fluxo de Caixa", url: "/", icon: LayoutDashboard },
+  { title: "Saldos Bancários", url: "/bancos", icon: Landmark },
   { title: "DRE Gerencial", url: "/dre", icon: FileBarChart },
   { title: "Projeções futuras", url: "/projecao", icon: CalendarClock },
   { title: "Apresentação", url: "/apresentacao", icon: Presentation },

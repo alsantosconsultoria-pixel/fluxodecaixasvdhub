@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedApresentacaoRouteImport } from './routes/_authenticated/apresentacao'
+import { Route as AuthenticatedBancosRouteImport } from './routes/_authenticated/bancos'
 import { Route as AuthenticatedDreRouteImport } from './routes/_authenticated/dre'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedKpisRouteImport } from './routes/_authenticated/kpis'
@@ -40,6 +41,11 @@ const AuthenticatedApresentacaoRoute =
     path: '/apresentacao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBancosRoute = AuthenticatedBancosRouteImport.update({
+  id: '/bancos',
+  path: '/bancos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDreRoute = AuthenticatedDreRouteImport.update({
   id: '/dre',
   path: '/dre',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/bancos': typeof AuthenticatedBancosRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/bancos': typeof AuthenticatedBancosRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/_authenticated/bancos': typeof AuthenticatedBancosRoute
   '/_authenticated/dre': typeof AuthenticatedDreRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
   '/_authenticated/kpis': typeof AuthenticatedKpisRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/apresentacao'
+    | '/bancos'
     | '/dre'
     | '/empresa'
     | '/kpis'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/apresentacao'
+    | '/bancos'
     | '/dre'
     | '/empresa'
     | '/kpis'
@@ -134,6 +145,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/apresentacao'
+    | '/_authenticated/bancos'
     | '/_authenticated/dre'
     | '/_authenticated/empresa'
     | '/_authenticated/kpis'
@@ -176,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/apresentacao'
       fullPath: '/apresentacao'
       preLoaderRoute: typeof AuthenticatedApresentacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bancos': {
+      id: '/_authenticated/bancos'
+      path: '/bancos'
+      fullPath: '/bancos'
+      preLoaderRoute: typeof AuthenticatedBancosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dre': {
@@ -225,6 +244,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApresentacaoRoute: typeof AuthenticatedApresentacaoRoute
+  AuthenticatedBancosRoute: typeof AuthenticatedBancosRoute
   AuthenticatedDreRoute: typeof AuthenticatedDreRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
   AuthenticatedKpisRoute: typeof AuthenticatedKpisRoute
@@ -236,6 +256,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApresentacaoRoute: AuthenticatedApresentacaoRoute,
+  AuthenticatedBancosRoute: AuthenticatedBancosRoute,
   AuthenticatedDreRoute: AuthenticatedDreRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
   AuthenticatedKpisRoute: AuthenticatedKpisRoute,
@@ -255,13 +276,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
