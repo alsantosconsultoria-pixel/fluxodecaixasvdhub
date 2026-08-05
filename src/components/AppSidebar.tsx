@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
+  DatabaseBackup,
   CalendarClock,
   FileBarChart,
   History,
@@ -39,6 +40,7 @@ const administracao = [
   { title: "Editar KPIs", url: "/kpis", icon: Wand2 },
   { title: "Usuários", url: "/usuarios", icon: Users },
   { title: "Empresa", url: "/empresa", icon: Building2 },
+  { title: "Backup", url: "/backup", icon: DatabaseBackup },
   { title: "Registros", url: "/logs", icon: History },
 ];
 

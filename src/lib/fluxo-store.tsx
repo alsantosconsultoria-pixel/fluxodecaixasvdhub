@@ -23,6 +23,7 @@ type Ctx = {
   fileName: string | null;
   erro: string | null;
   importar: (file: File) => Promise<void>;
+  restaurar: (rows: Raw[], fileName: string | null) => void;
   exportar: (data: FluxoData, nome: string) => void;
   abrirSeletor: () => void;
   inputProps: {
@@ -90,6 +91,21 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    function restaurar(novas: Raw[], nome: string | null) {
+      setErro(null);
+      setBundle(novas.length ? buildFluxo(novas) : (baseData as FluxoBundle));
+      setRows(novas);
+      setFileName(nome);
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ rows: novas, fileName: nome ?? "backup" }),
+        );
+      } catch {
+        /* planilha grande demais para o cache local */
+      }
+    }
+
     function exportar(data: FluxoData, nome: string) {
       const view = trimMeses(data);
       const { totalEntradas, totalSaidas, operacional, inicial, acumulado } =
@@ -122,6 +138,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       fileName,
       erro,
       importar,
+      restaurar,
       exportar,
       abrirSeletor: () => inputRef.current?.click(),
       inputProps: {
