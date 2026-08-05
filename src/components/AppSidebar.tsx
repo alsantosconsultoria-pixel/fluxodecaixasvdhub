@@ -4,6 +4,7 @@ import {
   CalendarClock,
   FileBarChart,
   History,
+  Landmark,
   LayoutDashboard,
   Presentation,
   Users,
