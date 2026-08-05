@@ -11,6 +11,7 @@ import { useEmpresa } from "@/lib/empresa";
 import { registrarLog } from "@/lib/logs";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Acesso restrito | Painel Financeiro" },
