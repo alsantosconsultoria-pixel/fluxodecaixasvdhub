@@ -267,17 +267,21 @@ function Row({
   previstos,
   rowClass,
   indent,
+  title: labelTitle,
 }: {
   label: string;
   values: number[];
   previstos?: number[];
   rowClass: string;
   indent?: boolean;
+  title?: string;
 }) {
   const bg = rowClass.split(" ").find((c) => c.startsWith("bg-")) ?? "bg-card";
   return (
     <tr className={`${rowClass} transition-colors`}>
-      <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`}>{label}</td>
+      <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`} title={labelTitle}>
+        {label}
+      </td>
       {values.map((v, i) => {
         const prev = previstos?.[i] ?? 0;
         const real = v - prev;
