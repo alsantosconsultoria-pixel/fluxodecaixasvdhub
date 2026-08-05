@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedApresentacaoRouteImport } from './routes/_authenticated/apresentacao'
+import { Route as AuthenticatedBackupRouteImport } from './routes/_authenticated/backup'
 import { Route as AuthenticatedBancosRouteImport } from './routes/_authenticated/bancos'
 import { Route as AuthenticatedDreRouteImport } from './routes/_authenticated/dre'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
@@ -41,6 +42,11 @@ const AuthenticatedApresentacaoRoute =
     path: '/apresentacao',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBackupRoute = AuthenticatedBackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBancosRoute = AuthenticatedBancosRouteImport.update({
   id: '/bancos',
   path: '/bancos',
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/bancos': typeof AuthenticatedBancosRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/backup': typeof AuthenticatedBackupRoute
   '/bancos': typeof AuthenticatedBancosRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/apresentacao': typeof AuthenticatedApresentacaoRoute
+  '/_authenticated/backup': typeof AuthenticatedBackupRoute
   '/_authenticated/bancos': typeof AuthenticatedBancosRoute
   '/_authenticated/dre': typeof AuthenticatedDreRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/apresentacao'
+    | '/backup'
     | '/bancos'
     | '/dre'
     | '/empresa'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/apresentacao'
+    | '/backup'
     | '/bancos'
     | '/dre'
     | '/empresa'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/apresentacao'
+    | '/_authenticated/backup'
     | '/_authenticated/bancos'
     | '/_authenticated/dre'
     | '/_authenticated/empresa'
@@ -188,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/apresentacao'
       fullPath: '/apresentacao'
       preLoaderRoute: typeof AuthenticatedApresentacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/backup': {
+      id: '/_authenticated/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof AuthenticatedBackupRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/bancos': {
@@ -244,6 +263,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedApresentacaoRoute: typeof AuthenticatedApresentacaoRoute
+  AuthenticatedBackupRoute: typeof AuthenticatedBackupRoute
   AuthenticatedBancosRoute: typeof AuthenticatedBancosRoute
   AuthenticatedDreRoute: typeof AuthenticatedDreRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
@@ -256,6 +276,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApresentacaoRoute: AuthenticatedApresentacaoRoute,
+  AuthenticatedBackupRoute: AuthenticatedBackupRoute,
   AuthenticatedBancosRoute: AuthenticatedBancosRoute,
   AuthenticatedDreRoute: AuthenticatedDreRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
