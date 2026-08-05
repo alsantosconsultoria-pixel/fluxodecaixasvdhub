@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_accounts: {
+        Row: {
+          agencia: string
+          atualizado_em: string
+          conta: string
+          criado_em: string
+          criado_por: string | null
+          data_saldo: string
+          id: string
+          nome: string
+          observacao: string
+          saldo: number
+        }
+        Insert: {
+          agencia?: string
+          atualizado_em?: string
+          conta?: string
+          criado_em?: string
+          criado_por?: string | null
+          data_saldo?: string
+          id?: string
+          nome: string
+          observacao?: string
+          saldo?: number
+        }
+        Update: {
+          agencia?: string
+          atualizado_em?: string
+          conta?: string
+          criado_em?: string
+          criado_por?: string | null
+          data_saldo?: string
+          id?: string
+          nome?: string
+          observacao?: string
+          saldo?: number
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           atualizado_em: string

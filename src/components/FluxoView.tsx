@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FluxoCharts } from "@/components/FluxoCharts";
 import { FluxoFiltros } from "@/components/FluxoFiltros";
 import { ProjecaoCards } from "@/components/ProjecaoCards";
+import { useBancos } from "@/lib/bancos";
 import { useFluxo } from "@/lib/fluxo-store";
 import {
   FILTROS_VAZIOS,
@@ -52,6 +53,7 @@ export function FluxoView({
 }) {
   const { bundle, fileName, erro, abrirSeletor, exportar } = useFluxo();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+  const { saldoTotal: saldoBancario, bancos } = useBancos();
 
 
   const baseR = realizado ?? fluxoVazio(bundle.meses);
@@ -65,7 +67,10 @@ export function FluxoView({
 
   const categorias = useMemo(() => categoriasDe(baseR, baseP), [baseR, baseP]);
 
-  const { totalEntradas, totalSaidas, operacional, inicial, acumulado } = computeTotais(view);
+  const { totalEntradas, totalSaidas, operacional, inicial, acumulado } = computeTotais(
+    view,
+    saldoBancario,
+  );
   const previstoTotais = computeTotais(viewP);
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
   const temPrevisto = viewP.entradas.length + viewP.saidas.length > 0;
@@ -194,6 +199,13 @@ export function FluxoView({
             <tbody>
               <Row
                 label="Saldo Inicial Caixa"
+                title={
+                  bancos.length
+                    ? `Saldo bancário cadastrado: ${bancos
+                        .map((b) => `${b.nome} ${formatValor(b.saldo)}`)
+                        .join(" · ")}`
+                    : "Cadastre os saldos bancários na aba Saldos Bancários"
+                }
                 values={inicial}
                 rowClass="bg-flow-saldo-bg font-semibold text-flow-saldo"
               />
@@ -255,17 +267,21 @@ function Row({
   previstos,
   rowClass,
   indent,
+  title: labelTitle,
 }: {
   label: string;
   values: number[];
   previstos?: number[];
   rowClass: string;
   indent?: boolean;
+  title?: string;
 }) {
   const bg = rowClass.split(" ").find((c) => c.startsWith("bg-")) ?? "bg-card";
   return (
     <tr className={`${rowClass} transition-colors`}>
-      <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`}>{label}</td>
+      <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`} title={labelTitle}>
+        {label}
+      </td>
       {values.map((v, i) => {
         const prev = previstos?.[i] ?? 0;
         const real = v - prev;
