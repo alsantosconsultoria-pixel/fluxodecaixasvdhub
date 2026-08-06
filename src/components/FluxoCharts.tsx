@@ -38,6 +38,7 @@ const FONTE: Record<string, string> = {
   "Saídas previstas": "Data vencimento",
   "Saldo acumulado realizado": "Data baixa",
   "Saldo acumulado projetado": "Data baixa + Data vencimento",
+  "Saldo bancário": "Saldo dos bancos + baixas e projeções",
 };
 
 function compact(v: number) {
