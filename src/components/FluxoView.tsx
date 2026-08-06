@@ -74,6 +74,10 @@ export function FluxoView({
   const previstoTotais = computeTotais(viewP);
   const sum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
   const temPrevisto = viewP.entradas.length + viewP.saidas.length > 0;
+  const banco = useMemo(
+    () => saldoBancarioSerie(viewR, viewP, saldoBancario),
+    [viewR, viewP, saldoBancario],
+  );
 
   return (
     <div className="mx-auto max-w-[1600px] space-y-6">
