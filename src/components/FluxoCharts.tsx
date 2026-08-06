@@ -232,6 +232,15 @@ export function FluxoCharts({
                 activeDot={{ r: 4 }}
               />
             )}
+            <Line
+              type="monotone"
+              dataKey="saldoBanco"
+              name="Saldo bancário"
+              stroke="var(--flow-in)"
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 4 }}
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </Panel>
