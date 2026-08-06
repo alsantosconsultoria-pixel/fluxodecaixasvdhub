@@ -55,6 +55,13 @@ function BancosPage() {
   const [salvando, setSalvando] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  const { bundle } = useFluxo();
+  const { saldoFinal: saldoFinalProjetado } = useMemo(
+    () => saldoBancarioSerie(bundle.realizado, bundle.previsto, saldoTotal),
+    [bundle, saldoTotal],
+  );
+  const projecaoMovimento = saldoFinalProjetado - saldoTotal;
+
   const ultimaAtualizacao = useMemo(() => {
     const datas = bancos.map((b) => b.data_saldo).sort();
     return datas.length ? formatarData(datas[datas.length - 1]) : "—";
