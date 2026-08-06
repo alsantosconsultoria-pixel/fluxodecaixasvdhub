@@ -145,7 +145,7 @@ export function FluxoView({
       />
 
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           icon={<TrendingUp className="size-4" />}
           label={`Total de ${labelEntradas.toLowerCase()}`}
@@ -161,6 +161,15 @@ export function FluxoView({
           tone="out"
         />
         <SummaryCard
+          icon={<Landmark className="size-4" />}
+          label="Saldo bancário"
+          value={banco.saldoAtual}
+          hint={`Inicial: ${formatValor(banco.saldoInicial)} · Projetado: ${formatValor(
+            banco.saldoFinal,
+          )}`}
+          tone="in"
+        />
+        <SummaryCard
           icon={<Wallet className="size-4" />}
           label={temPrevisto ? "Saldo acumulado projetado" : "Saldo acumulado"}
           value={acumulado[acumulado.length - 1] ?? 0}
@@ -170,7 +179,8 @@ export function FluxoView({
 
       {temPrevisto && <ProjecaoCards realizado={viewR} previsto={viewP} />}
 
-      <FluxoCharts realizado={viewR} previsto={viewP} />
+      <FluxoCharts realizado={viewR} previsto={viewP} saldoBancario={saldoBancario} />
+
 
       <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
         <div className="border-b border-flow-grid bg-flow-total-bg px-4 py-2 text-[11px] text-muted-foreground">
