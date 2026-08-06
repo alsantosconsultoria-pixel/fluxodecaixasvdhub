@@ -16,6 +16,7 @@ import {
   formatValor,
   mergeFluxo,
   mesLabel,
+  saldoBancarioSerie,
   valorEm,
   type FluxoData,
   type Filtros,
