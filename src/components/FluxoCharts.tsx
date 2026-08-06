@@ -12,7 +12,13 @@ import {
   YAxis,
 } from "recharts";
 
-import { computeTotais, mergeFluxo, mesLabel, type FluxoData } from "@/lib/fluxo";
+import {
+  computeTotais,
+  mergeFluxo,
+  mesLabel,
+  saldoBancarioSerie,
+  type FluxoData,
+} from "@/lib/fluxo";
 
 const COLORS = {
   in: "var(--flow-in)",
@@ -32,6 +38,7 @@ const FONTE: Record<string, string> = {
   "Saídas previstas": "Data vencimento",
   "Saldo acumulado realizado": "Data baixa",
   "Saldo acumulado projetado": "Data baixa + Data vencimento",
+  "Saldo bancário": "Saldo dos bancos + baixas e projeções",
 };
 
 function compact(v: number) {
@@ -102,9 +109,11 @@ function Panel({
 export function FluxoCharts({
   realizado,
   previsto,
+  saldoBancario = 0,
 }: {
   realizado: FluxoData;
   previsto: FluxoData;
+  saldoBancario?: number;
 }) {
   const total = useMemo(() => mergeFluxo(realizado, previsto), [realizado, previsto]);
   const temRealizado = realizado.entradas.length + realizado.saidas.length > 0;
@@ -114,6 +123,7 @@ export function FluxoCharts({
     const r = computeTotais(realizado);
     const p = computeTotais(previsto);
     const t = computeTotais(total);
+    const banco = saldoBancarioSerie(realizado, previsto, saldoBancario);
     return total.meses.map((m, i) => ({
       mes: mesLabel(m),
       entradasR: Math.abs(r.totalEntradas[i] ?? 0),
@@ -122,8 +132,9 @@ export function FluxoCharts({
       saidasP: Math.abs(p.totalSaidas[i] ?? 0),
       acumuladoR: r.acumulado[i] ?? 0,
       acumuladoT: t.acumulado[i] ?? 0,
+      saldoBanco: banco.serie[i] ?? 0,
     }));
-  }, [realizado, previsto, total]);
+  }, [realizado, previsto, total, saldoBancario]);
 
   const porCategoria = useMemo(() => {
     const sum = (d: FluxoData, tipo: "entradas" | "saidas", c: string) =>
@@ -222,6 +233,15 @@ export function FluxoCharts({
                 activeDot={{ r: 4 }}
               />
             )}
+            <Line
+              type="monotone"
+              dataKey="saldoBanco"
+              name="Saldo bancário"
+              stroke="var(--flow-in)"
+              strokeWidth={2.5}
+              dot={false}
+              activeDot={{ r: 4 }}
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </Panel>

@@ -265,6 +265,45 @@ export function computeTotais(data: FluxoData, saldoInicial = 0) {
   return { totalEntradas, totalSaidas, operacional, inicial, acumulado };
 }
 
+/**
+ * Saldo bancário ao longo dos períodos:
+ * saldo inicial (soma dos bancos) + movimentos realizados até hoje;
+ * a partir de hoje, soma também as projeções (previsto) de entradas e saídas.
+ */
+export function saldoBancarioSerie(
+  realizado: FluxoData,
+  previsto: FluxoData,
+  saldoInicial: number,
+  hojeISO = new Date().toISOString().slice(0, 10),
+) {
+  const meses = realizado.meses.length ? realizado.meses : previsto.meses;
+  const soma = (d: FluxoData, i: number) =>
+    [...d.entradas, ...d.saidas].reduce((acc, r) => acc + (r.valores[i] ?? 0), 0);
+
+  const serie: number[] = [];
+  const futuro: boolean[] = [];
+  let saldoAtual = saldoInicial;
+  let acc = saldoInicial;
+
+  meses.forEach((m, i) => {
+    const [, fim] = periodoRangeISO(m);
+    const ehFuturo = fim > hojeISO;
+    acc += soma(realizado, i) + (ehFuturo ? soma(previsto, i) : 0);
+    if (!ehFuturo) saldoAtual = acc;
+    serie.push(Math.round(acc * 100) / 100);
+    futuro.push(ehFuturo);
+  });
+
+  return {
+    meses,
+    serie,
+    futuro,
+    saldoInicial,
+    saldoAtual: Math.round(saldoAtual * 100) / 100,
+    saldoFinal: Math.round((serie[serie.length - 1] ?? saldoInicial) * 100) / 100,
+  };
+}
+
 /* ---------- filtros, merge e utilidades de visão ---------- */
 
 /** `de` e `ate` são datas ISO ("YYYY-MM-DD"), permitindo recorte por dia. */

@@ -5,7 +5,8 @@ import { Landmark, Loader2, Plus, Save, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatValor } from "@/lib/fluxo";
+import { formatValor, saldoBancarioSerie } from "@/lib/fluxo";
+import { useFluxo } from "@/lib/fluxo-store";
 import {
   dataHoje,
   excluirBanco,
@@ -54,6 +55,13 @@ function BancosPage() {
   const [form, setForm] = useState<BancoInput & { id?: string }>(VAZIO);
   const [salvando, setSalvando] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+
+  const { bundle } = useFluxo();
+  const { saldoFinal: saldoFinalProjetado } = useMemo(
+    () => saldoBancarioSerie(bundle.realizado, bundle.previsto, saldoTotal),
+    [bundle, saldoTotal],
+  );
+  const projecaoMovimento = saldoFinalProjetado - saldoTotal;
 
   const ultimaAtualizacao = useMemo(() => {
     const datas = bancos.map((b) => b.data_saldo).sort();
@@ -205,6 +213,45 @@ function BancosPage() {
           {msg && <p className="text-xs text-muted-foreground md:col-span-6">{msg}</p>}
         </form>
       )}
+
+      <section className="rounded-xl border border-flow-grid bg-card p-4 shadow-elegant">
+        <h2 className="text-sm font-semibold tracking-tight">Resumo final por banco</h2>
+        <p className="text-xs text-muted-foreground">
+          Saldo atual cadastrado e saldo final projetado (rateio da projeção do fluxo de caixa
+          pela participação de cada conta).
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {bancos.map((b) => {
+            const part = saldoTotal ? b.saldo / saldoTotal : 0;
+            return (
+              <div key={b.id} className="rounded-lg border border-flow-grid bg-flow-total-bg p-3">
+                <p className="text-xs font-medium text-muted-foreground">{b.nome}</p>
+                <p className="mt-1 text-lg font-semibold tabular-nums text-flow-saldo">
+                  {formatValor(b.saldo)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Participação: {(part * 100).toLocaleString("pt-BR", {
+                    maximumFractionDigits: 1,
+                  })}
+                  % · Final projetado:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatValor(b.saldo + part * projecaoMovimento)}
+                  </span>
+                </p>
+              </div>
+            );
+          })}
+          {!bancos.length && (
+            <p className="text-xs text-muted-foreground">Nenhum banco cadastrado ainda.</p>
+          )}
+        </div>
+        <p className="mt-3 border-t border-flow-grid pt-3 text-sm">
+          Saldo final projetado consolidado:{" "}
+          <span className="font-semibold tabular-nums text-flow-saldo">
+            {formatValor(saldoFinalProjetado)}
+          </span>
+        </p>
+      </section>
 
       <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
         <table className="w-full border-collapse text-sm">
