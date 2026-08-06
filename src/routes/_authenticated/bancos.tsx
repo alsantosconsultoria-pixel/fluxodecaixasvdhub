@@ -5,7 +5,8 @@ import { Landmark, Loader2, Plus, Save, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatValor } from "@/lib/fluxo";
+import { formatValor, saldoBancarioSerie } from "@/lib/fluxo";
+import { useFluxo } from "@/lib/fluxo-store";
 import {
   dataHoje,
   excluirBanco,
