@@ -12,7 +12,13 @@ import {
   YAxis,
 } from "recharts";
 
-import { computeTotais, mergeFluxo, mesLabel, type FluxoData } from "@/lib/fluxo";
+import {
+  computeTotais,
+  mergeFluxo,
+  mesLabel,
+  saldoBancarioSerie,
+  type FluxoData,
+} from "@/lib/fluxo";
 
 const COLORS = {
   in: "var(--flow-in)",
