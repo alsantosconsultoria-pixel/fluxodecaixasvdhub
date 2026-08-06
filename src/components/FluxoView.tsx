@@ -268,6 +268,12 @@ export function FluxoView({
                 values={acumulado}
                 rowClass="bg-flow-total-bg font-semibold text-flow-saldo"
               />
+              <Row
+                label="Saldo Bancário"
+                title="Saldo dos bancos + baixas realizadas; períodos futuros somam as projeções"
+                values={banco.serie}
+                rowClass="bg-flow-in-bg font-semibold text-flow-in"
+              />
             </tbody>
           </table>
         </div>
