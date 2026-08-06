@@ -206,6 +206,45 @@ function BancosPage() {
         </form>
       )}
 
+      <section className="rounded-xl border border-flow-grid bg-card p-4 shadow-elegant">
+        <h2 className="text-sm font-semibold tracking-tight">Resumo final por banco</h2>
+        <p className="text-xs text-muted-foreground">
+          Saldo atual cadastrado e saldo final projetado (rateio da projeção do fluxo de caixa
+          pela participação de cada conta).
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {bancos.map((b) => {
+            const part = saldoTotal ? b.saldo / saldoTotal : 0;
+            return (
+              <div key={b.id} className="rounded-lg border border-flow-grid bg-flow-total-bg p-3">
+                <p className="text-xs font-medium text-muted-foreground">{b.nome}</p>
+                <p className="mt-1 text-lg font-semibold tabular-nums text-flow-saldo">
+                  {formatValor(b.saldo)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Participação: {(part * 100).toLocaleString("pt-BR", {
+                    maximumFractionDigits: 1,
+                  })}
+                  % · Final projetado:{" "}
+                  <span className="font-medium text-foreground">
+                    {formatValor(b.saldo + part * projecaoMovimento)}
+                  </span>
+                </p>
+              </div>
+            );
+          })}
+          {!bancos.length && (
+            <p className="text-xs text-muted-foreground">Nenhum banco cadastrado ainda.</p>
+          )}
+        </div>
+        <p className="mt-3 border-t border-flow-grid pt-3 text-sm">
+          Saldo final projetado consolidado:{" "}
+          <span className="font-semibold tabular-nums text-flow-saldo">
+            {formatValor(saldoFinalProjetado)}
+          </span>
+        </p>
+      </section>
+
       <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
         <table className="w-full border-collapse text-sm">
           <thead>
