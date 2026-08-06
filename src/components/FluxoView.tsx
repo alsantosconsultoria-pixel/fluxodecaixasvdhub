@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download, Upload, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { Download, Upload, TrendingUp, TrendingDown, Wallet, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FluxoCharts } from "@/components/FluxoCharts";
