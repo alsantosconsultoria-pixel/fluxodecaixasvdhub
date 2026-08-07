@@ -82,7 +82,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
           return;
         }
-        setBundle(next);
+        setContasSelecionadas([]);
         setRows(lidas);
         setFileName(file.name);
         try {
