@@ -104,7 +104,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
 
     function restaurar(novas: Raw[], nome: string | null) {
       setErro(null);
-      setBundle(novas.length ? buildFluxo(novas) : (baseData as FluxoBundle));
+      setContasSelecionadas([]);
       setRows(novas);
       setFileName(nome);
       try {
