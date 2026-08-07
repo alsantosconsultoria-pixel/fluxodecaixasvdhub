@@ -52,9 +52,28 @@ export function FluxoView({
   onGranularidade?: (g: "mes" | "dia") => void;
   granularidadeDisponivel?: boolean;
 }) {
-  const { bundle, fileName, erro, abrirSeletor, exportar } = useFluxo();
+  const { bundle, fileName, erro, abrirSeletor, exportar, contas, contasSelecionadas, setContasSelecionadas } =
+    useFluxo();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
-  const { saldoTotal: saldoBancario, bancos } = useBancos();
+  const { saldoTotal, bancos } = useBancos();
+
+  const bancosAtivos = useMemo(() => {
+    if (!contasSelecionadas.length) return bancos;
+    const alvo = contasSelecionadas.map(norm);
+    return bancos.filter((b) =>
+      alvo.some(
+        (a) =>
+          (b.conta && a.includes(norm(b.conta))) ||
+          (b.nome && a.includes(norm(b.nome))) ||
+          norm(b.nome).includes(a),
+      ),
+    );
+  }, [bancos, contasSelecionadas]);
+
+  const saldoBancario = contasSelecionadas.length
+    ? bancosAtivos.reduce((acc, b) => acc + b.saldo, 0)
+    : saldoTotal;
+
 
 
   const baseR = realizado ?? fluxoVazio(bundle.meses);
