@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Download, Upload, TrendingUp, TrendingDown, Wallet, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ContasFiltro } from "@/components/ContasFiltro";
+
 import { FluxoCharts } from "@/components/FluxoCharts";
 import { FluxoFiltros } from "@/components/FluxoFiltros";
 import { ProjecaoCards } from "@/components/ProjecaoCards";
