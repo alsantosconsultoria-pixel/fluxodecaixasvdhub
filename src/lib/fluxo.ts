@@ -234,9 +234,20 @@ function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
   return { meses, entradas: toRows(buckets.entrada), saidas: toRows(buckets.saida) };
 }
 
-/** Aggregates raw spreadsheet rows into realized / projected / total matrices. */
-export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundle {
-  const lancamentos = parseLancamentos(rows, gran);
+/**
+ * Aggregates raw spreadsheet rows into realized / projected / total matrices.
+ * `contas` filtra apenas os lançamentos realizados (coluna "Conta");
+ * as provisões continuam integrais.
+ */
+export function buildFluxo(
+  rows: Raw[],
+  gran: Granularidade = "mes",
+  contas: string[] = [],
+): FluxoBundle {
+  const todos = parseLancamentos(rows, gran);
+  const lancamentos = contas.length
+    ? todos.filter((l) => !l.realizado || contas.includes(l.conta))
+    : todos;
   const meses = sortMeses(new Set(lancamentos.map((l) => l.mes)));
   return {
     meses,
@@ -250,6 +261,7 @@ export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundl
     ),
     total: toFluxo(lancamentos, meses),
   };
+
 }
 
 /** Drops months where the given view has no movement at all. */
