@@ -251,9 +251,10 @@ export function FluxoView({
               <Row
                 label="Saldo Inicial Caixa"
                 title={
-                  bancos.length
-                    ? `Saldo bancário cadastrado: ${bancos
+                  bancosAtivos.length
+                    ? `Saldo bancário cadastrado: ${bancosAtivos
                         .map((b) => `${b.nome} ${formatValor(b.saldo)}`)
+
                         .join(" · ")}`
                     : "Cadastre os saldos bancários na aba Saldos Bancários"
                 }
