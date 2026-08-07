@@ -146,6 +146,9 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       bundleDia,
       temDetalheDiario: rows.length > 0,
       rows,
+      contas,
+      contasSelecionadas,
+      setContasSelecionadas,
       fileName,
       erro,
       importar,
@@ -161,7 +164,8 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, bundleDia, rows, fileName, erro]);
+  }, [bundle, bundleDia, rows, contas, contasSelecionadas, fileName, erro]);
+
 
   return (
     <FluxoContext.Provider value={value}>
