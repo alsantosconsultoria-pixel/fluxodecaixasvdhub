@@ -5,6 +5,7 @@ import baseData from "@/data/fluxo-caixa.json";
 import {
   buildFluxo,
   computeTotais,
+  contasRealizadas,
   mesLabel,
   trimMeses,
   type FluxoBundle,
@@ -20,6 +21,9 @@ type Ctx = {
   bundleDia: FluxoBundle;
   temDetalheDiario: boolean;
   rows: Raw[];
+  contas: string[];
+  contasSelecionadas: string[];
+  setContasSelecionadas: (contas: string[]) => void;
   fileName: string | null;
   erro: string | null;
   importar: (file: File) => Promise<void>;
@@ -46,18 +50,25 @@ function lerCache(): { rows: Raw[]; fileName: string } | null {
 
 export function FluxoProvider({ children }: { children: ReactNode }) {
   const cache = typeof window === "undefined" ? null : lerCache();
-  const [bundle, setBundle] = useState<FluxoBundle>(() =>
-    cache ? buildFluxo(cache.rows) : (baseData as FluxoBundle),
-  );
   const [rows, setRows] = useState<Raw[]>(() => cache?.rows ?? []);
   const [fileName, setFileName] = useState<string | null>(cache?.fileName ?? null);
   const [erro, setErro] = useState<string | null>(null);
+  const [contasSelecionadas, setContasSelecionadas] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const bundleDia = useMemo<FluxoBundle>(
-    () => (rows.length ? buildFluxo(rows, "dia") : bundle),
-    [rows, bundle],
+  const contas = useMemo(() => contasRealizadas(rows), [rows]);
+
+  const bundle = useMemo<FluxoBundle>(
+    () =>
+      rows.length ? buildFluxo(rows, "mes", contasSelecionadas) : (baseData as FluxoBundle),
+    [rows, contasSelecionadas],
   );
+
+  const bundleDia = useMemo<FluxoBundle>(
+    () => (rows.length ? buildFluxo(rows, "dia", contasSelecionadas) : bundle),
+    [rows, contasSelecionadas, bundle],
+  );
+
 
   const value = useMemo<Ctx>(() => {
     async function importar(file: File) {
@@ -71,7 +82,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
           return;
         }
-        setBundle(next);
+        setContasSelecionadas([]);
         setRows(lidas);
         setFileName(file.name);
         try {
@@ -93,7 +104,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
 
     function restaurar(novas: Raw[], nome: string | null) {
       setErro(null);
-      setBundle(novas.length ? buildFluxo(novas) : (baseData as FluxoBundle));
+      setContasSelecionadas([]);
       setRows(novas);
       setFileName(nome);
       try {
@@ -135,6 +146,9 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       bundleDia,
       temDetalheDiario: rows.length > 0,
       rows,
+      contas,
+      contasSelecionadas,
+      setContasSelecionadas,
       fileName,
       erro,
       importar,
@@ -150,7 +164,8 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, bundleDia, rows, fileName, erro]);
+  }, [bundle, bundleDia, rows, contas, contasSelecionadas, fileName, erro]);
+
 
   return (
     <FluxoContext.Provider value={value}>

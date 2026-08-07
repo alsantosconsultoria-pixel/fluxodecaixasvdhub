@@ -132,7 +132,29 @@ type Lancamento = {
   valor: number;
   tipo: "entrada" | "saida";
   realizado: boolean;
+  conta: string;
 };
+
+function ehConciliado(row: Raw) {
+  return (
+    String(pick(row, "Conciliado") ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase() === "sim"
+  );
+}
+
+/** Contas bancárias (coluna "Conta") presentes nos lançamentos realizados. */
+export function contasRealizadas(rows: Raw[]): string[] {
+  const set = new Set<string>();
+  for (const row of rows) {
+    if (!ehConciliado(row)) continue;
+    const conta = String(pick(row, "Conta") ?? "").trim();
+    if (conta) set.add(conta);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
 
 /**
  * Reference rules (validated against the base spreadsheet):
@@ -151,12 +173,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       .toLowerCase();
     if (operacao !== "pagar" && operacao !== "receber") continue;
 
-    const conciliado = String(pick(row, "Conciliado") ?? "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .toLowerCase();
-    const realizado = conciliado === "sim";
+    const realizado = ehConciliado(row);
 
     const mes = realizado
       ? parsePeriodo(pick(row, "Data baixa"), gran)
@@ -178,10 +195,12 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       valor: operacao === "pagar" ? -Math.abs(valor) : Math.abs(valor),
       tipo: operacao === "pagar" ? "saida" : "entrada",
       realizado,
+      conta: String(pick(row, "Conta") ?? "").trim(),
     });
   }
   return out;
 }
+
 
 
 function sortMeses(meses: Iterable<string>) {
@@ -215,9 +234,20 @@ function toFluxo(lancamentos: Lancamento[], meses: string[]): FluxoData {
   return { meses, entradas: toRows(buckets.entrada), saidas: toRows(buckets.saida) };
 }
 
-/** Aggregates raw spreadsheet rows into realized / projected / total matrices. */
-export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundle {
-  const lancamentos = parseLancamentos(rows, gran);
+/**
+ * Aggregates raw spreadsheet rows into realized / projected / total matrices.
+ * `contas` filtra apenas os lançamentos realizados (coluna "Conta");
+ * as provisões continuam integrais.
+ */
+export function buildFluxo(
+  rows: Raw[],
+  gran: Granularidade = "mes",
+  contas: string[] = [],
+): FluxoBundle {
+  const todos = parseLancamentos(rows, gran);
+  const lancamentos = contas.length
+    ? todos.filter((l) => !l.realizado || contas.includes(l.conta))
+    : todos;
   const meses = sortMeses(new Set(lancamentos.map((l) => l.mes)));
   return {
     meses,
@@ -231,6 +261,7 @@ export function buildFluxo(rows: Raw[], gran: Granularidade = "mes"): FluxoBundl
     ),
     total: toFluxo(lancamentos, meses),
   };
+
 }
 
 /** Drops months where the given view has no movement at all. */

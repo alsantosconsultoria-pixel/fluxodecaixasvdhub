@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Download, Upload, TrendingUp, TrendingDown, Wallet, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ContasFiltro } from "@/components/ContasFiltro";
+
 import { FluxoCharts } from "@/components/FluxoCharts";
 import { FluxoFiltros } from "@/components/FluxoFiltros";
 import { ProjecaoCards } from "@/components/ProjecaoCards";
@@ -26,6 +28,14 @@ const cellBase =
   "border-b border-flow-grid px-3 py-[5px] text-right tabular-nums whitespace-nowrap";
 const labelBase =
   "sticky left-0 z-10 min-w-[260px] border-b border-r border-flow-grid px-3 py-[5px] text-left";
+
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
 
 export function FluxoView({
   eyebrow,
@@ -52,9 +62,28 @@ export function FluxoView({
   onGranularidade?: (g: "mes" | "dia") => void;
   granularidadeDisponivel?: boolean;
 }) {
-  const { bundle, fileName, erro, abrirSeletor, exportar } = useFluxo();
+  const { bundle, fileName, erro, abrirSeletor, exportar, contas, contasSelecionadas, setContasSelecionadas } =
+    useFluxo();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
-  const { saldoTotal: saldoBancario, bancos } = useBancos();
+  const { saldoTotal, bancos } = useBancos();
+
+  const bancosAtivos = useMemo(() => {
+    if (!contasSelecionadas.length) return bancos;
+    const alvo = contasSelecionadas.map(norm);
+    return bancos.filter((b) =>
+      alvo.some(
+        (a) =>
+          (b.conta && a.includes(norm(b.conta))) ||
+          (b.nome && a.includes(norm(b.nome))) ||
+          norm(b.nome).includes(a),
+      ),
+    );
+  }, [bancos, contasSelecionadas]);
+
+  const saldoBancario = contasSelecionadas.length
+    ? bancosAtivos.reduce((acc, b) => acc + b.saldo, 0)
+    : saldoTotal;
+
 
 
   const baseR = realizado ?? fluxoVazio(bundle.meses);
@@ -137,6 +166,13 @@ export function FluxoView({
         </p>
       )}
 
+      <ContasFiltro
+        contas={contas}
+        selecionadas={contasSelecionadas}
+        onChange={setContasSelecionadas}
+      />
+
+
       <FluxoFiltros
         meses={baseR.meses.length ? baseR.meses : baseP.meses}
         categorias={categorias}
@@ -215,9 +251,10 @@ export function FluxoView({
               <Row
                 label="Saldo Inicial Caixa"
                 title={
-                  bancos.length
-                    ? `Saldo bancário cadastrado: ${bancos
+                  bancosAtivos.length
+                    ? `Saldo bancário cadastrado: ${bancosAtivos
                         .map((b) => `${b.nome} ${formatValor(b.saldo)}`)
+
                         .join(" · ")}`
                     : "Cadastre os saldos bancários na aba Saldos Bancários"
                 }
