@@ -164,6 +164,13 @@ export function FluxoView({
         </p>
       )}
 
+      <ContasFiltro
+        contas={contas}
+        selecionadas={contasSelecionadas}
+        onChange={setContasSelecionadas}
+      />
+
+
       <FluxoFiltros
         meses={baseR.meses.length ? baseR.meses : baseP.meses}
         categorias={categorias}
