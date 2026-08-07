@@ -27,6 +27,14 @@ const cellBase =
 const labelBase =
   "sticky left-0 z-10 min-w-[260px] border-b border-r border-flow-grid px-3 py-[5px] text-left";
 
+const norm = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+
 export function FluxoView({
   eyebrow,
   titulo,
