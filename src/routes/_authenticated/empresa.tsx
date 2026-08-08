@@ -17,15 +17,15 @@ import { useSession } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/empresa")({
   head: () => ({
     meta: [
-      { title: "Identidade da Empresa | Painel Financeiro" },
+      { title: "Identidade da Empresa | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
-        content: "Defina o nome e a logo da empresa exibidos na tela de login e no painel.",
+        content: "Defina o nome e a logo da empresa exibidos na tela de login e no painel financeiro.",
       },
-      { property: "og:title", content: "Identidade da Empresa | Painel Financeiro" },
+      { property: "og:title", content: "Identidade da Empresa | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Personalize a marca do painel financeiro: nome e logo da empresa.",
+        content: "Defina o nome e a logo da empresa exibidos na tela de login e no painel financeiro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

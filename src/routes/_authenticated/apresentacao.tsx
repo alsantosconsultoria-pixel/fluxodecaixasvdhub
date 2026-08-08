@@ -23,16 +23,16 @@ import {
 export const Route = createFileRoute("/_authenticated/apresentacao")({
   head: () => ({
     meta: [
-      { title: "Apresentação de Resultados | Painel Financeiro" },
+      { title: "Apresentação de Resultados | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "KPIs financeiros configuráveis por período, com comparação automática com o período anterior.",
+          "KPIs financeiros configuráveis por período, com comparação automática para apresentação de resultados.",
       },
-      { property: "og:title", content: "Apresentação de Resultados | Painel Financeiro" },
+      { property: "og:title", content: "Apresentação de Resultados | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Indicadores financeiros por intervalo de datas para apresentação de resultados.",
+        content: "KPIs financeiros configuráveis por período, com comparação automática para apresentação de resultados.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

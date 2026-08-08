@@ -86,16 +86,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Painel Financeiro | Fluxo de Caixa" },
+      { title: "Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Painel financeiro com fluxo de caixa, projeções, KPIs e controle de acesso por usuário.",
+          "Painel financeiro completo com fluxo de caixa, projeções futuras, DRE gerencial, KPIs e controle de acesso por usuário.",
       },
-      { property: "og:title", content: "Painel Financeiro | Fluxo de Caixa" },
+      { property: "og:title", content: "Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Fluxo de caixa, projeções e apresentação de resultados financeiros.",
+        content:
+          "Painel financeiro completo com fluxo de caixa, projeções futuras, DRE gerencial, KPIs e controle de acesso por usuário.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

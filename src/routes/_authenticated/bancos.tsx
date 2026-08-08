@@ -22,16 +22,16 @@ import { useSession } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/bancos")({
   head: () => ({
     meta: [
-      { title: "Saldos Bancários | Painel Financeiro" },
+      { title: "Saldos Bancários | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Cadastre bancos, informe saldos e a data de atualização que alimenta o saldo inicial do fluxo de caixa.",
+          "Cadastre bancos, saldos e datas de atualização que alimentam o fluxo de caixa do painel financeiro.",
       },
-      { property: "og:title", content: "Saldos Bancários | Painel Financeiro" },
+      { property: "og:title", content: "Saldos Bancários | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Controle de contas bancárias, saldos e datas de atualização.",
+        content: "Cadastre bancos, saldos e datas de atualização que alimentam o fluxo de caixa do painel financeiro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

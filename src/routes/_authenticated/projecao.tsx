@@ -6,17 +6,17 @@ import { useFluxo } from "@/lib/fluxo-store";
 export const Route = createFileRoute("/_authenticated/projecao")({
   head: () => ({
     meta: [
-      { title: "Projeções Futuras | Painel Financeiro" },
+      { title: "Projeções Futuras | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Pagamentos futuros e receitas futuras por categoria financeira, projetados pela data de vencimento dos títulos em aberto.",
+          "Pagamentos e receitas futuras por categoria financeira, projetados pela data de vencimento.",
       },
-      { property: "og:title", content: "Projeções Futuras | Painel Financeiro" },
+      { property: "og:title", content: "Projeções Futuras | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
         content:
-          "Contas a pagar e a receber ainda não baixadas, distribuídas pelo mês de vencimento.",
+          "Pagamentos e receitas futuras por categoria financeira, projetados pela data de vencimento.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

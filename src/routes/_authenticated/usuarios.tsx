@@ -23,15 +23,15 @@ import { useSession } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/usuarios")({
   head: () => ({
     meta: [
-      { title: "Cadastro de Usuários | Painel Financeiro" },
+      { title: "Cadastro de Usuários | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content: "Cadastre usuários, defina papéis e controle o acesso ao painel financeiro.",
       },
-      { property: "og:title", content: "Cadastro de Usuários | Painel Financeiro" },
+      { property: "og:title", content: "Cadastro de Usuários | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Gestão de contas e permissões de acesso ao painel financeiro.",
+        content: "Cadastre usuários, defina papéis e controle o acesso ao painel financeiro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
