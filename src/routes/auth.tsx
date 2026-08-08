@@ -14,15 +14,15 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Acesso restrito | Painel Financeiro" },
+      { title: "Acesso restrito | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
-        content: "Entre com e-mail e senha para acessar o painel de fluxo de caixa.",
+        content: "Entre com e-mail e senha para acessar o painel financeiro de fluxo de caixa.",
       },
-      { property: "og:title", content: "Acesso restrito | Painel Financeiro" },
+      { property: "og:title", content: "Acesso restrito | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Área protegida do painel financeiro de fluxo de caixa.",
+        content: "Entre com e-mail e senha para acessar o painel financeiro de fluxo de caixa.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

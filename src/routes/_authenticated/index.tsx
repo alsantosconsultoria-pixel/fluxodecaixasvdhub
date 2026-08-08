@@ -8,17 +8,17 @@ import { useFluxo } from "@/lib/fluxo-store";
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Fluxo de Caixa Diário | Painel Financeiro" },
+      { title: "Fluxo de Caixa Diário | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Fluxo de caixa por dia e por categoria financeira, usando a data da baixa para realizados e o vencimento para títulos em aberto.",
+          "Fluxo de caixa diário por categoria, com saldo bancário, projeções futuras e controle de acesso por usuário.",
       },
-      { property: "og:title", content: "Fluxo de Caixa Diário | Painel Financeiro" },
+      { property: "og:title", content: "Fluxo de Caixa Diário | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
         content:
-          "Entradas e saídas por categoria financeira, saldo operacional e saldo acumulado com filtro de período por dia.",
+          "Fluxo de caixa diário por categoria, com saldo bancário, projeções futuras e controle de acesso por usuário.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

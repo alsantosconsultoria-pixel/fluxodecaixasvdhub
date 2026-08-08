@@ -19,16 +19,16 @@ import { useSession } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/backup")({
   head: () => ({
     meta: [
-      { title: "Backup e Exportação | Painel Financeiro" },
+      { title: "Backup e Exportação | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Baixe o fluxo de caixa em HTML, gere um backup completo em JSON e restaure os dados do painel.",
+          "Baixe o fluxo de caixa em HTML, gere backup JSON e restaure os dados do painel financeiro.",
       },
-      { property: "og:title", content: "Backup e Exportação | Painel Financeiro" },
+      { property: "og:title", content: "Backup e Exportação | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Exportação em HTML e backup/restauração em JSON do painel financeiro.",
+        content: "Baixe o fluxo de caixa em HTML, gere backup JSON e restaure os dados do painel financeiro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

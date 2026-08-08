@@ -29,16 +29,16 @@ import { useSession } from "@/lib/session";
 export const Route = createFileRoute("/_authenticated/kpis")({
   head: () => ({
     meta: [
-      { title: "Edição de KPIs | Painel Financeiro" },
+      { title: "Edição de KPIs | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Monte os indicadores da apresentação escolhendo colunas, operações e filtros da planilha base.",
+          "Monte indicadores financeiros escolhendo colunas, operações e filtros da planilha base.",
       },
-      { property: "og:title", content: "Edição de KPIs | Painel Financeiro" },
+      { property: "og:title", content: "Edição de KPIs | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Configure indicadores financeiros a partir das colunas da planilha base.",
+        content: "Monte indicadores financeiros escolhendo colunas, operações e filtros da planilha base.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

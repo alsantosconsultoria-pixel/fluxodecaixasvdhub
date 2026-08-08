@@ -16,16 +16,16 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated/logs")({
   head: () => ({
     meta: [
-      { title: "Registros de Atividade | Painel Financeiro" },
+      { title: "Registros de Atividade | Fluxo de Caixa | Painel Financeiro" },
       {
         name: "description",
         content:
-          "Histórico de acessos, importações da base e alterações de KPIs com data e hora.",
+          "Histórico de acessos, importações da base e alterações de KPIs no painel financeiro.",
       },
-      { property: "og:title", content: "Registros de Atividade | Painel Financeiro" },
+      { property: "og:title", content: "Registros de Atividade | Fluxo de Caixa | Painel Financeiro" },
       {
         property: "og:description",
-        content: "Auditoria de acessos e atualizações da base do painel financeiro.",
+        content: "Histórico de acessos, importações da base e alterações de KPIs no painel financeiro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
