@@ -1,0 +1,9 @@
+{
+  "name": "painel-financeiro",
+  "productName": "Painel Financeiro",
+  "version": "1.0.0",
+  "description": "Painel Financeiro - Fluxo de Caixa (Santos Finance Consultoria)",
+  "main": "main.cjs",
+  "author": "Santos Finance Consultoria",
+  "license": "UNLICENSED"
+}
