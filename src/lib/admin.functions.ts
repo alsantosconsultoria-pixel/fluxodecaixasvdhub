@@ -86,10 +86,13 @@ export const criarUsuario = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { emailSintetico } = await import("@/lib/admin.schemas");
+    const email = data.modo === "avaliador" ? emailSintetico(data.nome) : data.email!;
+
     let userId: string;
     if (data.modo === "convite") {
       const { data: invited, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-        data.email,
+        email,
         { data: { nome: data.nome } },
       );
       if (error || !invited.user)
@@ -98,9 +101,9 @@ export const criarUsuario = createServerFn({ method: "POST" })
     } else {
       if (!data.senha) throw new Error("Informe uma senha temporária.");
       const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
-        email: data.email,
+        email,
         password: data.senha,
-        email_confirm: false,
+        email_confirm: data.modo === "avaliador",
         user_metadata: { nome: data.nome },
       });
       if (error || !created.user)
@@ -110,15 +113,15 @@ export const criarUsuario = createServerFn({ method: "POST" })
 
     await supabaseAdmin
       .from("profiles")
-      .upsert({ id: userId, nome: data.nome, email: data.email });
+      .upsert({ id: userId, nome: data.nome, email });
     await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: userId, role: data.role }, { onConflict: "user_id,role" });
     await registrarLogServidor(
       context.userId,
-      data.email,
+      email,
       "usuario_criado",
-      `Usuário ${data.email} criado como ${data.role}`,
+      `Usuário ${email} criado como ${data.role}`,
     );
     return { ok: true as const, userId };
   });
