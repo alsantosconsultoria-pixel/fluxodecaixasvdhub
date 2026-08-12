@@ -331,9 +331,17 @@ export function FluxoView({
           </table>
         </div>
       </section>
+
+      <DetalheCategoria
+        categoria={detalhe}
+        onClose={() => setDetalhe(null)}
+        rows={rows}
+        contas={contasSelecionadas}
+      />
     </div>
   );
 }
+
 
 function Row({
   label,
