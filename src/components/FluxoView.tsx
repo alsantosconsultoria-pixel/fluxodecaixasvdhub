@@ -291,6 +291,7 @@ export function FluxoView({
                   )}
                   rowClass="bg-card text-flow-in hover:bg-flow-in-bg/50"
                   indent
+                  onLabelClick={() => setDetalhe(r.categoria)}
                 />
               ))}
               <Row
@@ -307,6 +308,7 @@ export function FluxoView({
                   previstos={view.meses.map((_, i) => valorEm(viewP, "saidas", r.categoria, i))}
                   rowClass="bg-card text-flow-out hover:bg-flow-out-bg/50"
                   indent
+                  onLabelClick={() => setDetalhe(r.categoria)}
                 />
               ))}
               <Row
