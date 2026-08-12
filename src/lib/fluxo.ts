@@ -505,9 +505,8 @@ export function detalhesDe(rows: Raw[], categoria: string, contas: string[] = []
     out.push({
       data: realizado
         ? dataTexto(pick(row, "Data pagamento/recebimento")) ||
-          dataTexto(pick(row, "Data baixa")) ||
-          dataTexto(pick(row, "Data vencimento"))
-        : dataTexto(pick(row, "Data vencimento")) || dataTexto(pick(row, "Data baixa")),
+          dataTexto(pick(row, "Data baixa"))
+        : dataTexto(pick(row, "Data vencimento")),
       vencimento: dataTexto(pick(row, "Data vencimento")),
       categoria: cat,
       tipo: operacao === "pagar" ? "saida" : "entrada",
