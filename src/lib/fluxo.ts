@@ -161,10 +161,10 @@ export function contasRealizadas(rows: Raw[]): string[] {
 /**
  * Reference rules:
  * - Realizado: possui "Conta" -> período pela data efetiva do pagamento/recebimento
- *   ("Data pagamento/recebimento"; se vazia, "Data baixa"; se vazia, "Data vencimento"),
- *   valor "Total pago" (fallback "Valor pago" / "Valor título").
- * - Provisão:  sem "Conta"    -> período por "Data vencimento" (fallback "Data baixa"),
- *   valor "Valor título".
+ *   ("Data pagamento/recebimento"; se vazia, "Data baixa"). Ignora a data de vencimento.
+ *   Valor "Total pago" (fallback "Valor pago" / "Valor título").
+ * - Provisão:  sem "Conta"    -> período por "Data vencimento".
+ *   Valor "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
 
@@ -195,9 +195,8 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
           gran,
           pick(row, "Data pagamento/recebimento"),
           pick(row, "Data baixa"),
-          pick(row, "Data vencimento"),
         )
-      : primeiroPeriodo(gran, pick(row, "Data vencimento"), pick(row, "Data baixa"));
+      : primeiroPeriodo(gran, pick(row, "Data vencimento"));
     if (!mes) continue;
 
     const partes = mes.split("/");
@@ -506,9 +505,8 @@ export function detalhesDe(rows: Raw[], categoria: string, contas: string[] = []
     out.push({
       data: realizado
         ? dataTexto(pick(row, "Data pagamento/recebimento")) ||
-          dataTexto(pick(row, "Data baixa")) ||
-          dataTexto(pick(row, "Data vencimento"))
-        : dataTexto(pick(row, "Data vencimento")) || dataTexto(pick(row, "Data baixa")),
+          dataTexto(pick(row, "Data baixa"))
+        : dataTexto(pick(row, "Data vencimento")),
       vencimento: dataTexto(pick(row, "Data vencimento")),
       categoria: cat,
       tipo: operacao === "pagar" ? "saida" : "entrada",
