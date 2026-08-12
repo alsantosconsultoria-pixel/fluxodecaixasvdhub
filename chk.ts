@@ -1,0 +1,12 @@
+import * as XLSX from "xlsx";
+import { buildFluxo, computeTotais } from "./src/lib/fluxo";
+const wb = XLSX.readFile("/mnt/user-uploads/base_teste_2026.xlsx", { cellDates: true });
+const rows = XLSX.utils.sheet_to_json<any>(wb.Sheets[wb.SheetNames[0]]);
+console.log("rows", rows.length);
+const b = buildFluxo(rows, "mes");
+console.log("meses", b.meses.join(","));
+const tR = computeTotais(b.realizado), tP = computeTotais(b.previsto);
+const s=(a:number[])=>a.reduce((x,y)=>x+y,0);
+console.log("realizado ent", s(tR.totalEntradas), "sai", s(tR.totalSaidas));
+console.log("previsto ent", s(tP.totalEntradas), "sai", s(tP.totalSaidas));
+console.log("cats saidas", b.total.saidas.length, "entradas", b.total.entradas.length);
