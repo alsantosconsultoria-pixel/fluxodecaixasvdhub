@@ -161,10 +161,10 @@ export function contasRealizadas(rows: Raw[]): string[] {
 /**
  * Reference rules:
  * - Realizado: possui "Conta" -> período pela data efetiva do pagamento/recebimento
- *   ("Data pagamento/recebimento"; se vazia, "Data baixa"; se vazia, "Data vencimento"),
- *   valor "Total pago" (fallback "Valor pago" / "Valor título").
- * - Provisão:  sem "Conta"    -> período por "Data vencimento" (fallback "Data baixa"),
- *   valor "Valor título".
+ *   ("Data pagamento/recebimento"; se vazia, "Data baixa"). Ignora a data de vencimento.
+ *   Valor "Total pago" (fallback "Valor pago" / "Valor título").
+ * - Provisão:  sem "Conta"    -> período por "Data vencimento".
+ *   Valor "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
 
