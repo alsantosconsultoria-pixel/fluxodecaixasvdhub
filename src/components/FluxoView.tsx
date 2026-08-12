@@ -234,13 +234,13 @@ export function FluxoView({
 
       <section className="overflow-hidden rounded-xl border border-flow-grid bg-card shadow-elegant">
         <div className="border-b border-flow-grid bg-flow-total-bg px-4 py-2 text-[11px] text-muted-foreground">
-          Valores em <span className="font-medium text-foreground">negrito normal</span> são
-          realizados (referência: <em>Data baixa</em>). Valores{" "}
-          <span className="italic underline decoration-dashed underline-offset-2">
-            sublinhados tracejados
+          Valores em texto normal são realizados (pagos/recebidos, com conta bancária e data de
+          pagamento/recebimento). Valores{" "}
+          <span className="font-bold underline decoration-dashed underline-offset-2">
+            em negrito
           </span>{" "}
-          contêm projeção (referência: <em>Data vencimento</em>). Passe o mouse sobre a célula
-          para ver a composição.
+          contêm lançamentos não pagos / projetados (referência: <em>Data vencimento</em>). Clique
+          na categoria financeira para ver todos os lançamentos.
         </div>
         <div className="overflow-auto">
           <table className="w-full border-collapse text-[12px] leading-tight">
