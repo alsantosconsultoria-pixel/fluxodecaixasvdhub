@@ -160,10 +160,22 @@ export function contasRealizadas(rows: Raw[]): string[] {
 
 /**
  * Reference rules:
- * - Realizado: possui "Conta" -> período por "Data baixa", valor "Total pago".
- * - Provisão:  sem "Conta"    -> período por "Data vencimento", valor "Valor título".
+ * - Realizado: possui "Conta" -> período pela data efetiva do pagamento/recebimento
+ *   ("Data pagamento/recebimento"; se vazia, "Data baixa"; se vazia, "Data vencimento"),
+ *   valor "Total pago" (fallback "Valor pago" / "Valor título").
+ * - Provisão:  sem "Conta"    -> período por "Data vencimento" (fallback "Data baixa"),
+ *   valor "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
+
+/** Primeiro período válido entre vários candidatos de data. */
+function primeiroPeriodo(gran: Granularidade, ...valores: unknown[]): string | null {
+  for (const v of valores) {
+    const p = parsePeriodo(v, gran);
+    if (p) return p;
+  }
+  return null;
+}
 
 function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
   const out: Lancamento[] = [];
@@ -179,13 +191,18 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
     const realizado = ehRealizado(row);
 
     const mes = realizado
-      ? parsePeriodo(pick(row, "Data baixa"), gran)
-      : parsePeriodo(pick(row, "Data vencimento"), gran);
+      ? primeiroPeriodo(
+          gran,
+          pick(row, "Data pagamento/recebimento"),
+          pick(row, "Data baixa"),
+          pick(row, "Data vencimento"),
+        )
+      : primeiroPeriodo(gran, pick(row, "Data vencimento"), pick(row, "Data baixa"));
     if (!mes) continue;
 
     const partes = mes.split("/");
     const ano = Number(partes[partes.length - 1]);
-    if (ano < 2023 || ano > 2030) continue;
+    if (ano < 2015 || ano > 2040) continue;
 
     const pago = parseValor(pick(row, "Total pago") ?? pick(row, "Valor pago"));
     const valor = realizado
