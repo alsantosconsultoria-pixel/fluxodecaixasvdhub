@@ -135,33 +135,36 @@ type Lancamento = {
   conta: string;
 };
 
-function ehConciliado(row: Raw) {
-  return (
-    String(pick(row, "Conciliado") ?? "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .toLowerCase() === "sim"
-  );
+/** Conta bancária do lançamento (coluna "Conta"). */
+function contaDe(row: Raw) {
+  return String(pick(row, "Conta") ?? "").trim();
 }
 
-/** Contas bancárias (coluna "Conta") presentes nos lançamentos realizados. */
+/**
+ * Realizado = lançamento com "Conta" preenchida (foi pago/recebido em uma conta).
+ * Sem conta = provisão. A coluna "Conciliado" não é mais usada.
+ */
+function ehRealizado(row: Raw) {
+  return contaDe(row) !== "";
+}
+
+/** Contas bancárias (coluna "Conta") presentes na base. */
 export function contasRealizadas(rows: Raw[]): string[] {
   const set = new Set<string>();
   for (const row of rows) {
-    if (!ehConciliado(row)) continue;
-    const conta = String(pick(row, "Conta") ?? "").trim();
+    const conta = contaDe(row);
     if (conta) set.add(conta);
   }
   return [...set].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
 
 /**
- * Reference rules (validated against the base spreadsheet):
- * - Realizado: Conciliado = "Sim" -> month from "Data baixa", amount "Total pago".
- * - Provisão:  Conciliado = "Não" -> month from "Data vencimento", amount "Valor título".
+ * Reference rules:
+ * - Realizado: possui "Conta" -> período por "Data baixa", valor "Total pago".
+ * - Provisão:  sem "Conta"    -> período por "Data vencimento", valor "Valor título".
  * Applies to both "Pagar" (saídas) and "Receber" (entradas).
  */
+
 function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
   const out: Lancamento[] = [];
   for (const row of rows) {
@@ -173,7 +176,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       .toLowerCase();
     if (operacao !== "pagar" && operacao !== "receber") continue;
 
-    const realizado = ehConciliado(row);
+    const realizado = ehRealizado(row);
 
     const mes = realizado
       ? parsePeriodo(pick(row, "Data baixa"), gran)
@@ -184,9 +187,10 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
     const ano = Number(partes[partes.length - 1]);
     if (ano < 2023 || ano > 2030) continue;
 
-    const valor = parseValor(
-      realizado ? (pick(row, "Total pago") ?? pick(row, "Valor pago")) : pick(row, "Valor título"),
-    );
+    const pago = parseValor(pick(row, "Total pago") ?? pick(row, "Valor pago"));
+    const valor = realizado
+      ? pago || parseValor(pick(row, "Valor título"))
+      : parseValor(pick(row, "Valor título"));
     if (!valor) continue;
 
     out.push({
@@ -195,7 +199,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       valor: operacao === "pagar" ? -Math.abs(valor) : Math.abs(valor),
       tipo: operacao === "pagar" ? "saida" : "entrada",
       realizado,
-      conta: String(pick(row, "Conta") ?? "").trim(),
+      conta: contaDe(row),
     });
   }
   return out;
