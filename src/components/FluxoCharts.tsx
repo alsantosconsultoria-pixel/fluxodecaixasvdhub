@@ -318,9 +318,9 @@ function CategoriaPanel({
 
 export function ChartLegend() {
   const items = [
-    { c: "var(--flow-in)", l: "Entradas realizadas", s: "Data baixa" },
+    { c: "var(--flow-in)", l: "Entradas realizadas", s: "Data do realizado" },
     { c: "var(--flow-in-prev)", l: "Entradas previstas", s: "Data vencimento" },
-    { c: "var(--flow-out)", l: "Saídas realizadas", s: "Data baixa" },
+    { c: "var(--flow-out)", l: "Saídas realizadas", s: "Data do realizado" },
     { c: "var(--flow-out-prev)", l: "Saídas previstas", s: "Data vencimento" },
   ];
   return (
