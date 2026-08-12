@@ -187,9 +187,10 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
     const ano = Number(partes[partes.length - 1]);
     if (ano < 2023 || ano > 2030) continue;
 
-    const valor = parseValor(
-      realizado ? (pick(row, "Total pago") ?? pick(row, "Valor pago")) : pick(row, "Valor título"),
-    );
+    const pago = parseValor(pick(row, "Total pago") ?? pick(row, "Valor pago"));
+    const valor = realizado
+      ? pago || parseValor(pick(row, "Valor título"))
+      : parseValor(pick(row, "Valor título"));
     if (!valor) continue;
 
     out.push({
