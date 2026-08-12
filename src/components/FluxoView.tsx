@@ -2,6 +2,13 @@ import { useMemo, useState } from "react";
 import { Download, Upload, TrendingUp, TrendingDown, Wallet, Landmark } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ContasFiltro } from "@/components/ContasFiltro";
 
 import { FluxoCharts } from "@/components/FluxoCharts";
@@ -14,6 +21,7 @@ import {
   aplicarFiltros,
   categoriasDe,
   computeTotais,
+  detalhesDe,
   fluxoVazio,
   formatValor,
   mergeFluxo,
