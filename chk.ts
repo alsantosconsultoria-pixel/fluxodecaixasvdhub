@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { buildFluxo, computeTotais } from "./src/lib/fluxo";
-const wb = XLSX.readFile("/mnt/user-uploads/base_teste_2026.xlsx", { cellDates: true });
+const wb = XLSX.readFile("/mnt/user-uploads/BASE_TESTE_JANEIRO_26.xlsx", { cellDates: true });
 const rows = XLSX.utils.sheet_to_json<any>(wb.Sheets[wb.SheetNames[0]]);
 console.log("rows", rows.length);
 const b = buildFluxo(rows, "mes");
