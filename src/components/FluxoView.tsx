@@ -86,8 +86,13 @@ export function FluxoView({
 
 
 
-  const baseR = realizado ?? fluxoVazio(bundle.meses);
-  const baseP = previsto ?? fluxoVazio(bundle.meses);
+  const eixo = realizado?.meses.length
+    ? realizado.meses
+    : previsto?.meses.length
+      ? previsto.meses
+      : bundle.meses;
+  const baseR = realizado ?? fluxoVazio(eixo);
+  const baseP = previsto ?? fluxoVazio(eixo);
 
   const [viewR, viewP] = useMemo(
     () => aplicarFiltros([baseR, baseP], filtros),
