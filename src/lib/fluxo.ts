@@ -176,7 +176,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       .toLowerCase();
     if (operacao !== "pagar" && operacao !== "receber") continue;
 
-    const realizado = ehConciliado(row);
+    const realizado = ehRealizado(row);
 
     const mes = realizado
       ? parsePeriodo(pick(row, "Data baixa"), gran)
@@ -198,7 +198,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
       valor: operacao === "pagar" ? -Math.abs(valor) : Math.abs(valor),
       tipo: operacao === "pagar" ? "saida" : "entrada",
       realizado,
-      conta: String(pick(row, "Conta") ?? "").trim(),
+      conta: contaDe(row),
     });
   }
   return out;
