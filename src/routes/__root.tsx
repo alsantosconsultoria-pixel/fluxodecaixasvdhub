@@ -174,6 +174,9 @@ function RootComponent() {
                   {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
                   <Outlet />
                 </main>
+                <footer className="border-t border-flow-grid bg-card/70 px-4 py-3 text-center text-xs text-muted-foreground backdrop-blur">
+                  Desenvolvido por Anderson Santos.
+                </footer>
               </div>
             </div>
           </SidebarProvider>
