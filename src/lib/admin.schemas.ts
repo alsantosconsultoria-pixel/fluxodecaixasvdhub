@@ -46,7 +46,7 @@ export const primeiroAdminSchema = z.object({
 
 export const definirPapelSchema = z.object({
   userId: z.string().uuid(),
-  role: z.enum(["admin", "user"]),
+  role: z.enum(["admin", "user", "avaliador"]),
 });
 
 export const excluirUsuarioSchema = z.object({ userId: z.string().uuid() });
