@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { criarPrimeiroAdmin, precisaBootstrap } from "@/lib/admin.functions";
+import { emailSintetico } from "@/lib/admin.schemas";
 import { useEmpresa } from "@/lib/empresa";
 import { registrarLog } from "@/lib/logs";
 
@@ -56,13 +57,17 @@ function AuthPage() {
     e.preventDefault();
     setErro(null);
     setEnviando(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
+    const identificador = email.includes("@") ? email.trim() : emailSintetico(email);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: identificador,
+      password: senha,
+    });
     setEnviando(false);
     if (error) {
       setErro(
         error.message.includes("Email not confirmed")
           ? "Confirme seu e-mail antes de entrar."
-          : "E-mail ou senha inválidos.",
+          : "Usuário/e-mail ou senha inválidos.",
       );
       return;
     }
@@ -125,11 +130,11 @@ function AuthPage() {
             </div>
           )}
           <div className="space-y-1.5">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="email">{bootstrap ? "E-mail" : "E-mail ou usuário"}</Label>
             <Input
               id="email"
-              type="email"
-              autoComplete="email"
+              type={bootstrap ? "email" : "text"}
+              autoComplete={bootstrap ? "email" : "username"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

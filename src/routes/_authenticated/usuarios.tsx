@@ -18,6 +18,7 @@ import {
   excluirUsuario,
   listarUsuarios,
 } from "@/lib/admin.functions";
+import { usuarioParaLogin } from "@/lib/admin.schemas";
 import { useSession } from "@/lib/session";
 
 export const Route = createFileRoute("/_authenticated/usuarios")({
@@ -48,8 +49,8 @@ function UsuariosPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [role, setRole] = useState<"admin" | "user">("user");
-  const [modo, setModo] = useState<"convite" | "senha">("convite");
+  const [role, setRole] = useState<"admin" | "user" | "avaliador">("user");
+  const [modo, setModo] = useState<"convite" | "senha" | "avaliador">("convite");
   const [erro, setErro] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -81,12 +82,20 @@ function UsuariosPage() {
     setEnviando(true);
     try {
       await criarUsuario({
-        data: { nome, email, role, modo, senha: modo === "senha" ? senha : undefined },
+        data: {
+          nome,
+          email: modo === "avaliador" ? undefined : email,
+          role: modo === "avaliador" ? "avaliador" : role,
+          modo,
+          senha: modo === "convite" ? undefined : senha,
+        },
       });
       setOk(
         modo === "convite"
           ? `Convite enviado para ${email}.`
-          : `Usuário ${email} criado. Ele deve confirmar o e-mail antes de entrar.`,
+          : modo === "avaliador"
+            ? `Avaliador criado. Login: ${usuarioParaLogin(nome)} (entrar com nome e senha).`
+            : `Usuário ${email} criado. Ele deve confirmar o e-mail antes de entrar.`,
       );
       setNome("");
       setEmail("");
@@ -121,42 +130,55 @@ function UsuariosPage() {
           <Input id="u-nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
         </div>
         <div className="space-y-1.5 md:col-span-1">
-          <Label htmlFor="u-email">E-mail</Label>
-          <Input
-            id="u-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <Label htmlFor="u-email">{modo === "avaliador" ? "Login" : "E-mail"}</Label>
+          {modo === "avaliador" ? (
+            <Input id="u-email" value={usuarioParaLogin(nome)} readOnly disabled />
+          ) : (
+            <Input
+              id="u-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          )}
         </div>
         <div className="space-y-1.5">
           <Label>Papel</Label>
-          <Select value={role} onValueChange={(v) => setRole(v as "admin" | "user")}>
+          <Select
+            value={modo === "avaliador" ? "avaliador" : role}
+            disabled={modo === "avaliador"}
+            onValueChange={(v) => setRole(v as "admin" | "user" | "avaliador")}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="user">Usuário</SelectItem>
               <SelectItem value="admin">Administrador</SelectItem>
+              <SelectItem value="avaliador">Avaliador</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-1.5">
           <Label>Forma de acesso</Label>
-          <Select value={modo} onValueChange={(v) => setModo(v as "convite" | "senha")}>
+          <Select
+            value={modo}
+            onValueChange={(v) => setModo(v as "convite" | "senha" | "avaliador")}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="convite">Convite por e-mail</SelectItem>
               <SelectItem value="senha">Senha temporária</SelectItem>
+              <SelectItem value="avaliador">Avaliador (sem e-mail)</SelectItem>
             </SelectContent>
           </Select>
         </div>
-        {modo === "senha" ? (
+        {modo !== "convite" ? (
           <div className="space-y-1.5">
-            <Label htmlFor="u-senha">Senha temporária</Label>
+            <Label htmlFor="u-senha">Senha</Label>
             <Input
               id="u-senha"
               type="text"
@@ -196,12 +218,16 @@ function UsuariosPage() {
             {usuarios.map((u) => (
               <tr key={u.id} className="border-t border-flow-grid">
                 <td className="px-3 py-2">{u.nome || "—"}</td>
-                <td className="px-3 py-2 text-muted-foreground">{u.email}</td>
+                <td className="px-3 py-2 text-muted-foreground">
+                  {u.email.endsWith("@avaliador.local") ? u.email.split("@")[0] : u.email}
+                </td>
                 <td className="px-3 py-2">
                   <Select
                     value={u.role}
                     onValueChange={async (v) => {
-                      await definirPapel({ data: { userId: u.id, role: v as "admin" | "user" } });
+                      await definirPapel({
+                        data: { userId: u.id, role: v as "admin" | "user" | "avaliador" },
+                      });
                       await recarregar();
                     }}
                   >
@@ -211,6 +237,7 @@ function UsuariosPage() {
                     <SelectContent>
                       <SelectItem value="user">Usuário</SelectItem>
                       <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="avaliador">Avaliador</SelectItem>
                     </SelectContent>
                   </Select>
                 </td>
