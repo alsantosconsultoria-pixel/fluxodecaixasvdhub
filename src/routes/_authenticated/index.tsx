@@ -58,8 +58,8 @@ function FluxoDeCaixa() {
         titulo="Fluxo de Caixa"
         descricao={
           modo === "realizado"
-            ? `Somente títulos baixados (Conciliado = Sim), alocados pel${gran === "dia" ? "o dia" : "o mês"} da data da baixa.`
-            : `Baixados pela data da baixa e títulos em aberto pela data de vencimento, agrupados por ${gran === "dia" ? "dia" : "mês"}.`
+            ? `Somente lançamentos pagos/recebidos (com conta bancária), alocados pel${gran === "dia" ? "o dia" : "o mês"} da data de pagamento/recebimento.`
+            : `Pagos/recebidos pela data de pagamento e títulos em aberto pela data de vencimento, agrupados por ${gran === "dia" ? "dia" : "mês"}.`
         }
         realizado={atual.realizado}
         previsto={modo === "total" ? atual.previsto : undefined}

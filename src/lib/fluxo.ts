@@ -459,3 +459,70 @@ export function aplicarFiltros(partes: FluxoData[], filtros: Filtros): FluxoData
 export function valorEm(data: FluxoData, tipo: "entradas" | "saidas", categoria: string, i: number) {
   return data[tipo].find((r) => r.categoria === categoria)?.valores[i] ?? 0;
 }
+
+/** Lançamento individual da base, usado no detalhamento por categoria. */
+export type Detalhe = {
+  data: string;
+  vencimento: string;
+  categoria: string;
+  tipo: "entrada" | "saida";
+  realizado: boolean;
+  valor: number;
+  conta: string;
+  descricao: string;
+  contraparte: string;
+  documento: string;
+};
+
+function dataTexto(value: unknown): string {
+  return parseDia(value) ?? "";
+}
+
+/**
+ * Todos os lançamentos da base para uma categoria financeira.
+ * `contas` filtra apenas os realizados (mesma regra do fluxo).
+ */
+export function detalhesDe(rows: Raw[], categoria: string, contas: string[] = []): Detalhe[] {
+  const alvo = categoria.trim().toLowerCase();
+  const out: Detalhe[] = [];
+  for (const row of rows) {
+    const cat = String(pick(row, "Categoria financeira") ?? "").trim();
+    if (cat.toLowerCase() !== alvo) continue;
+
+    const operacao = String(pick(row, "Operação") ?? "")
+      .trim()
+      .toLowerCase();
+    if (operacao !== "pagar" && operacao !== "receber") continue;
+
+    const conta = contaDe(row);
+    const realizado = conta !== "";
+    if (realizado && contas.length && !contas.includes(conta)) continue;
+
+    const pago = parseValor(pick(row, "Total pago") ?? pick(row, "Valor pago"));
+    const bruto = realizado
+      ? pago || parseValor(pick(row, "Valor título"))
+      : parseValor(pick(row, "Valor título"));
+
+    out.push({
+      data: realizado
+        ? dataTexto(pick(row, "Data pagamento/recebimento")) ||
+          dataTexto(pick(row, "Data baixa")) ||
+          dataTexto(pick(row, "Data vencimento"))
+        : dataTexto(pick(row, "Data vencimento")) || dataTexto(pick(row, "Data baixa")),
+      vencimento: dataTexto(pick(row, "Data vencimento")),
+      categoria: cat,
+      tipo: operacao === "pagar" ? "saida" : "entrada",
+      realizado,
+      valor: operacao === "pagar" ? -Math.abs(bruto) : Math.abs(bruto),
+      conta,
+      descricao: String(pick(row, "Descrição") ?? "").trim(),
+      contraparte: String(pick(row, "Cliente/Fornecedor") ?? "").trim(),
+      documento: String(pick(row, "Nº documento") ?? pick(row, "N. Título") ?? "").trim(),
+    });
+  }
+  return out.sort((a, b) => {
+    const ia = a.data.split("/").reverse().join("");
+    const ib = b.data.split("/").reverse().join("");
+    return ia.localeCompare(ib);
+  });
+}
