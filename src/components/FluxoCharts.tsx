@@ -32,12 +32,12 @@ const COLORS = {
 
 /** Coluna de data usada para cada série. */
 const FONTE: Record<string, string> = {
-  "Entradas realizadas": "Data baixa",
-  "Saídas realizadas": "Data baixa",
+  "Entradas realizadas": "Data do realizado (pagamento/recebimento ou baixa)",
+  "Saídas realizadas": "Data do realizado (pagamento/recebimento ou baixa)",
   "Entradas previstas": "Data vencimento",
   "Saídas previstas": "Data vencimento",
-  "Saldo acumulado realizado": "Data baixa",
-  "Saldo acumulado projetado": "Data baixa + Data vencimento",
+  "Saldo acumulado realizado": "Data do realizado",
+  "Saldo acumulado projetado": "Saldo realizado + projeções (Data vencimento)",
   "Saldo bancário": "Saldo dos bancos + baixas e projeções",
 };
 
