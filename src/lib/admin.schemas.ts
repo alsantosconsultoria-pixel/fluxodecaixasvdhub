@@ -1,12 +1,41 @@
 import { z } from "zod";
 
-export const criarUsuarioSchema = z.object({
-  nome: z.string().trim().min(2, "Informe o nome").max(120),
-  email: z.string().trim().email("E-mail inválido").max(255),
-  role: z.enum(["admin", "user"]),
-  modo: z.enum(["convite", "senha"]),
-  senha: z.string().min(8, "Mínimo de 8 caracteres").max(72).optional(),
-});
+/** Login sem e-mail (Avaliador): gera um endereço interno determinístico. */
+export function usuarioParaLogin(nome: string) {
+  return nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, ".")
+    .replace(/^\.+|\.+$/g, "");
+}
+
+export function emailSintetico(nome: string) {
+  return `${usuarioParaLogin(nome)}@avaliador.local`;
+}
+
+export const criarUsuarioSchema = z
+  .object({
+    nome: z.string().trim().min(2, "Informe o nome").max(120),
+    email: z.string().trim().email("E-mail inválido").max(255).optional(),
+    role: z.enum(["admin", "user", "avaliador"]),
+    modo: z.enum(["convite", "senha", "avaliador"]),
+    senha: z.string().min(8, "Mínimo de 8 caracteres").max(72).optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.modo === "avaliador") {
+      if (!v.senha)
+        ctx.addIssue({ code: "custom", message: "Informe a senha", path: ["senha"] });
+      if (usuarioParaLogin(v.nome).length < 3)
+        ctx.addIssue({ code: "custom", message: "Nome inválido para login", path: ["nome"] });
+      return;
+    }
+    if (!v.email)
+      ctx.addIssue({ code: "custom", message: "Informe o e-mail", path: ["email"] });
+    if (v.modo === "senha" && !v.senha)
+      ctx.addIssue({ code: "custom", message: "Informe a senha", path: ["senha"] });
+  });
 export type CriarUsuarioInput = z.infer<typeof criarUsuarioSchema>;
 
 export const primeiroAdminSchema = z.object({
