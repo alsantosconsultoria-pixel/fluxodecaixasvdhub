@@ -62,9 +62,10 @@ export function FluxoView({
   onGranularidade?: (g: "mes" | "dia") => void;
   granularidadeDisponivel?: boolean;
 }) {
-  const { bundle, fileName, erro, abrirSeletor, exportar, contas, contasSelecionadas, setContasSelecionadas } =
+  const { bundle, fileName, erro, abrirSeletor, exportar, contas, contasSelecionadas, setContasSelecionadas, rows } =
     useFluxo();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
+  const [detalhe, setDetalhe] = useState<string | null>(null);
   const { saldoTotal, bancos } = useBancos();
 
   const bancosAtivos = useMemo(() => {
