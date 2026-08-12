@@ -342,6 +342,7 @@ function Row({
   rowClass,
   indent,
   title: labelTitle,
+  onLabelClick,
 }: {
   label: string;
   values: number[];
@@ -349,11 +350,18 @@ function Row({
   rowClass: string;
   indent?: boolean;
   title?: string;
+  onLabelClick?: () => void;
 }) {
   const bg = rowClass.split(" ").find((c) => c.startsWith("bg-")) ?? "bg-card";
   return (
     <tr className={`${rowClass} transition-colors`}>
-      <td className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""}`} title={labelTitle}>
+      <td
+        className={`${labelBase} ${bg} ${indent ? "pl-6 font-normal" : ""} ${
+          onLabelClick ? "cursor-pointer underline-offset-2 hover:underline" : ""
+        }`}
+        title={onLabelClick ? "Clique para ver todos os lançamentos" : labelTitle}
+        onClick={onLabelClick}
+      >
         {label}
       </td>
       {values.map((v, i) => {
@@ -362,8 +370,8 @@ function Row({
         const temProj = prev !== 0;
         const title = previstos
           ? [
-              `Realizado (coluna: Data baixa): ${formatValor(real)}`,
-              `Previsto (coluna: Data vencimento): ${formatValor(prev)}`,
+              `Realizado (pago/recebido): ${formatValor(real)}`,
+              `Não pago / projetado (Data vencimento): ${formatValor(prev)}`,
               `Total: ${formatValor(v)}`,
             ].join("\n")
           : undefined;
@@ -372,7 +380,7 @@ function Row({
             key={i}
             title={title}
             className={`${cellBase} ${
-              temProj ? "italic underline decoration-dashed underline-offset-2" : ""
+              temProj ? "font-bold underline decoration-dashed underline-offset-2" : ""
             }`}
           >
             {formatValor(v)}
@@ -382,6 +390,94 @@ function Row({
     </tr>
   );
 }
+
+function DetalheCategoria({
+  categoria,
+  onClose,
+  rows,
+  contas,
+}: {
+  categoria: string | null;
+  onClose: () => void;
+  rows: Parameters<typeof detalhesDe>[0];
+  contas: string[];
+}) {
+  const itens = useMemo(
+    () => (categoria ? detalhesDe(rows, categoria, contas) : []),
+    [rows, categoria, contas],
+  );
+  const total = itens.reduce((a, b) => a + b.valor, 0);
+  const pago = itens.filter((i) => i.realizado).reduce((a, b) => a + b.valor, 0);
+
+  return (
+    <Dialog open={!!categoria} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[85vh] max-w-5xl overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>{categoria}</DialogTitle>
+          <DialogDescription>
+            {itens.length} lançamento(s) · Realizado {formatValor(pago)} · Não pago/projetado{" "}
+            {formatValor(total - pago)} · Total {formatValor(total)}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[60vh] overflow-auto rounded-md border border-flow-grid">
+          <table className="w-full border-collapse text-[12px]">
+            <thead className="sticky top-0 bg-flow-total-bg">
+              <tr className="text-left">
+                {["Data", "Vencimento", "Cliente/Fornecedor", "Descrição", "Conta", "Situação", "Valor"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className={`border-b border-flow-grid px-2 py-1 font-semibold uppercase tracking-wide ${
+                        h === "Valor" ? "text-right" : ""
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {itens.map((it, i) => (
+                <tr key={i} className="hover:bg-flow-total-bg/60">
+                  <td className="border-b border-flow-grid px-2 py-1 whitespace-nowrap">{it.data}</td>
+                  <td className="border-b border-flow-grid px-2 py-1 whitespace-nowrap">
+                    {it.vencimento}
+                  </td>
+                  <td className="max-w-[220px] truncate border-b border-flow-grid px-2 py-1" title={it.contraparte}>
+                    {it.contraparte}
+                  </td>
+                  <td className="max-w-[280px] truncate border-b border-flow-grid px-2 py-1" title={it.descricao}>
+                    {it.descricao}
+                  </td>
+                  <td className="border-b border-flow-grid px-2 py-1 whitespace-nowrap">{it.conta || "-"}</td>
+                  <td className="border-b border-flow-grid px-2 py-1 whitespace-nowrap">
+                    {it.realizado ? "Realizado" : "Não pago / projetado"}
+                  </td>
+                  <td
+                    className={`border-b border-flow-grid px-2 py-1 text-right tabular-nums ${
+                      it.realizado ? "" : "font-bold"
+                    } ${it.tipo === "saida" ? "text-flow-out" : "text-flow-in"}`}
+                  >
+                    {formatValor(it.valor)}
+                  </td>
+                </tr>
+              ))}
+              {!itens.length && (
+                <tr>
+                  <td className="px-2 py-3 text-muted-foreground" colSpan={7}>
+                    Nenhum lançamento encontrado. Importe a planilha base para ver o detalhamento.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 
 function SummaryCard({
   icon,
