@@ -195,9 +195,8 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
           gran,
           pick(row, "Data pagamento/recebimento"),
           pick(row, "Data baixa"),
-          pick(row, "Data vencimento"),
         )
-      : primeiroPeriodo(gran, pick(row, "Data vencimento"), pick(row, "Data baixa"));
+      : primeiroPeriodo(gran, pick(row, "Data vencimento"));
     if (!mes) continue;
 
     const partes = mes.split("/");
