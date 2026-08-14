@@ -28,7 +28,7 @@ import {
 import { useEmpresa } from "@/lib/empresa";
 import { useSession } from "@/lib/session";
 
-const financeiro = [
+const financeiroBase = [
   { title: "Fluxo de Caixa", url: "/", icon: LayoutDashboard },
   { title: "Saldos Bancários", url: "/bancos", icon: Landmark },
   { title: "DRE Gerencial", url: "/dre", icon: FileBarChart },
@@ -36,7 +36,7 @@ const financeiro = [
   { title: "Apresentação", url: "/apresentacao", icon: Presentation },
 ];
 
-const administracao = [
+const administracaoBase = [
   { title: "Editar KPIs", url: "/kpis", icon: Wand2 },
   { title: "Usuários", url: "/usuarios", icon: Users },
   { title: "Empresa", url: "/empresa", icon: Building2 },
@@ -48,8 +48,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const currentPath = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin } = useSession();
+  const { isAdmin, podeAcessar } = useSession();
   const { empresa } = useEmpresa();
+  const financeiro = financeiroBase.filter((i) => podeAcessar(i.url));
+  const administracao = administracaoBase.filter((i) => isAdmin || podeAcessar(i.url));
 
 
   return (
@@ -75,6 +77,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        {financeiro.length > 0 && (
         <SidebarGroup>
           <SidebarGroupLabel>Navegação</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -92,8 +95,9 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        )}
 
-        {isAdmin && (
+        {administracao.length > 0 && (
           <SidebarGroup>
             <SidebarGroupLabel>Administração</SidebarGroupLabel>
             <SidebarGroupContent>
