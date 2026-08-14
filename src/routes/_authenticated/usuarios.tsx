@@ -256,6 +256,11 @@ function UsuariosPage() {
                     : "Nunca acessou"}
                 </td>
                 <td className="px-3 py-2 text-right">
+                  <PermissoesUsuario
+                    userId={u.id}
+                    nome={u.nome || u.email}
+                    ehAdmin={u.role === "admin"}
+                  />
                   <Button
                     variant="ghost"
                     size="sm"
@@ -272,6 +277,7 @@ function UsuariosPage() {
                     <Trash2 className="size-3.5" />
                   </Button>
                 </td>
+
               </tr>
             ))}
             {!usuarios.length && (
