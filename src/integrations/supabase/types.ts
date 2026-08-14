@@ -167,6 +167,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          aba: string
+          criado_em: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          aba: string
+          criado_em?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          aba?: string
+          criado_em?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
