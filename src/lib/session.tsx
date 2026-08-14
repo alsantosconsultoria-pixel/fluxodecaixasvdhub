@@ -85,12 +85,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       perfil,
       isAdmin,
       carregando,
+      abasPermitidas,
+      podeAcessar: (rota: string) => {
+        if (isAdmin) return true;
+        const aba = abaPorRota(rota);
+        if (!aba) return true;
+        return abasPermitidas.includes(aba.chave);
+      },
       recarregar: async () => {
         const { data } = await supabase.auth.getUser();
         await carregar(data.user ?? null);
       },
     }),
-    [user, perfil, isAdmin, carregando],
+    [user, perfil, isAdmin, carregando, abasPermitidas],
+
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
