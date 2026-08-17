@@ -55,9 +55,13 @@ type Ctx = {
   setContasSelecionadas: (contas: string[]) => void;
   fileName: string | null;
   erro: string | null;
+  gravando: boolean;
+  gravadoEm: string | null;
   importar: (file: File) => Promise<void>;
-  restaurar: (rows: Raw[], fileName: string | null) => void;
+  restaurar: (rows: Raw[], fileName: string | null, mesclar?: boolean) => void;
   exportar: (data: FluxoData, nome: string) => void;
+  gravar: () => Promise<void>;
+  zerar: () => Promise<void>;
   abrirSeletor: () => void;
   inputProps: {
     ref: React.RefObject<HTMLInputElement | null>;
