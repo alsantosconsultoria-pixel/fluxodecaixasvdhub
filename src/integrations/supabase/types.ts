@@ -104,6 +104,33 @@ export type Database = {
         }
         Relationships: []
       }
+      fluxo_dataset: {
+        Row: {
+          arquivo: string
+          atualizado_em: string
+          criado_por: string | null
+          id: string
+          linhas: Json
+          parte: number
+        }
+        Insert: {
+          arquivo?: string
+          atualizado_em?: string
+          criado_por?: string | null
+          id?: string
+          linhas?: Json
+          parte: number
+        }
+        Update: {
+          arquivo?: string
+          atualizado_em?: string
+          criado_por?: string | null
+          id?: string
+          linhas?: Json
+          parte?: number
+        }
+        Relationships: []
+      }
       kpi_configs: {
         Row: {
           coluna: string
