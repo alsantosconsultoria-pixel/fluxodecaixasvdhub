@@ -76,7 +76,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       try {
         const buf = await file.arrayBuffer();
         const wb = XLSX.read(buf, { cellDates: true });
-        const lidas = XLSX.utils.sheet_to_json<Raw>(wb.Sheets[wb.SheetNames[0]]);
+        const lidas = lerLancamentos(wb);
         const next = buildFluxo(lidas);
         if (!next.meses.length) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
