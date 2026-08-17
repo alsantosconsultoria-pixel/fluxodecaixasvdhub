@@ -1,5 +1,14 @@
 import { useMemo, useState } from "react";
-import { Download, Upload, TrendingUp, TrendingDown, Wallet, Landmark } from "lucide-react";
+import {
+  Download,
+  Loader2,
+  Save,
+  Upload,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Landmark,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +25,7 @@ import { FluxoFiltros } from "@/components/FluxoFiltros";
 import { ProjecaoCards } from "@/components/ProjecaoCards";
 import { useBancos } from "@/lib/bancos";
 import { useFluxo } from "@/lib/fluxo-store";
+import { useSession } from "@/lib/session";
 import {
   FILTROS_VAZIOS,
   aplicarFiltros,
@@ -70,8 +80,21 @@ export function FluxoView({
   onGranularidade?: (g: "mes" | "dia") => void;
   granularidadeDisponivel?: boolean;
 }) {
-  const { bundle, fileName, erro, abrirSeletor, exportar, contas, contasSelecionadas, setContasSelecionadas, rows } =
-    useFluxo();
+  const {
+    bundle,
+    fileName,
+    erro,
+    abrirSeletor,
+    exportar,
+    contas,
+    contasSelecionadas,
+    setContasSelecionadas,
+    rows,
+    gravar,
+    gravando,
+    gravadoEm,
+  } = useFluxo();
+  const { isAdmin } = useSession();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_VAZIOS);
   const [detalhe, setDetalhe] = useState<string | null>(null);
   const { saldoTotal, bancos } = useBancos();
@@ -136,6 +159,9 @@ export function FluxoView({
           <p className="mt-1 text-sm text-muted-foreground">{descricao}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {fileName ? `Fonte: ${fileName}` : "Fonte: planilha base importada anteriormente"}
+            {gravadoEm
+              ? ` · Base gravada em ${new Date(gravadoEm).toLocaleString("pt-BR")}`
+              : ""}
           </p>
         </div>
 
@@ -160,6 +186,20 @@ export function FluxoView({
             <Upload className="size-4" />
             Importar planilha base
           </Button>
+          {isAdmin && (
+            <Button
+              variant="secondary"
+              onClick={() => void gravar().catch(() => undefined)}
+              disabled={gravando || !rows.length}
+            >
+              {gravando ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              Gravar dados
+            </Button>
+          )}
           <Button onClick={() => exportar(view, exportName)}>
             <Download className="size-4" />
             Baixar backup em Excel

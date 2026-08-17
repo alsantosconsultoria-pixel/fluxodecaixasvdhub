@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { DatabaseBackup, Download, FileCode2, Loader2, Upload } from "lucide-react";
+import { DatabaseBackup, Download, FileCode2, Loader2, Save, Trash2, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,9 @@ export const Route = createFileRoute("/_authenticated/backup")({
 function BackupPage() {
   const { isAdmin } = useSession();
   const { empresa } = useEmpresa();
-  const { bundle, bundleDia, temDetalheDiario, rows, fileName } = useFluxo();
+  const { bundle, bundleDia, temDetalheDiario, rows, fileName, gravar, gravando, gravadoEm, zerar } =
+    useFluxo();
+  const [mesclar, setMesclar] = useState(true);
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -89,13 +91,44 @@ function BackupPage() {
     try {
       const backup = lerBackup(await file.text());
       await restaurarBackup(backup);
-      restaurar(backup.rows ?? [], backup.fileName ?? file.name);
-      void registrarLog("backup", `Backup restaurado a partir de "${file.name}"`);
-      setMsg("Backup restaurado com sucesso.");
+      restaurar(backup.rows ?? [], backup.fileName ?? file.name, mesclar);
+      void registrarLog(
+        "backup",
+        `Backup ${mesclar ? "somado à base" : "restaurado"} a partir de "${file.name}"`,
+      );
+      setMsg(
+        mesclar
+          ? "Backup somado à base atual (meses complementados)."
+          : "Backup restaurado, substituindo a base atual.",
+      );
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível restaurar o backup.");
     } finally {
       setOcupado(null);
+    }
+  }
+
+  async function gravarBase() {
+    setErro(null);
+    setMsg(null);
+    try {
+      await gravar();
+      setMsg("Dados gravados no sistema e disponíveis para todos os usuários.");
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao gravar os dados.");
+    }
+  }
+
+  async function zerarBase() {
+    if (!window.confirm("Zerar toda a base de lançamentos gravada? Esta ação não pode ser desfeita."))
+      return;
+    setErro(null);
+    setMsg(null);
+    try {
+      await zerar();
+      setMsg("Base zerada.");
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : "Falha ao zerar os dados.");
     }
   }
 
@@ -156,6 +189,15 @@ function BackupPage() {
           descricao="Substitui bancos, KPIs, dados da empresa e a planilha base pelo conteúdo do arquivo JSON."
           acao={
             <>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <input
+                  type="checkbox"
+                  checked={mesclar}
+                  onChange={(e) => setMesclar(e.target.checked)}
+                  className="size-3.5 accent-flow-saldo"
+                />
+                Somar à base atual (completar meses)
+              </label>
               <input
                 ref={inputRef}
                 type="file"
@@ -181,6 +223,44 @@ function BackupPage() {
                 Restaurar
               </Button>
             </>
+          }
+        />
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <Cartao
+          icon={<Save className="size-5 text-flow-saldo" />}
+          titulo="Gravar dados no sistema"
+          descricao={
+            gravadoEm
+              ? `A base fica salva no servidor e é carregada automaticamente para todos. Última gravação: ${new Date(gravadoEm).toLocaleString("pt-BR")}.`
+              : "Salva a base atual no servidor para que ela seja exibida automaticamente sempre que o painel abrir."
+          }
+          acao={
+            <Button
+              onClick={() => void gravarBase()}
+              disabled={gravando || !isAdmin || !rows.length}
+              className="w-full"
+            >
+              {gravando ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+              Gravar dados ({rows.length} lançamentos)
+            </Button>
+          }
+        />
+        <Cartao
+          icon={<Trash2 className="size-5 text-flow-out" />}
+          titulo="Zerar base de dados"
+          descricao="Remove todos os lançamentos gravados e limpa o painel. Bancos, KPIs e usuários não são afetados."
+          acao={
+            <Button
+              variant="destructive"
+              onClick={() => void zerarBase()}
+              disabled={gravando || !isAdmin}
+              className="w-full"
+            >
+              {gravando ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+              Zerar dados
+            </Button>
           }
         />
       </section>

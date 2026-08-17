@@ -1,11 +1,21 @@
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import * as XLSX from "xlsx";
 
 import baseData from "@/data/fluxo-caixa.json";
+import { carregarDataset, gravarDataset, limparDataset } from "@/lib/dataset";
 import {
   buildFluxo,
   computeTotais,
   contasRealizadas,
+  mesclarRows,
   mesLabel,
   trimMeses,
   type FluxoBundle,
@@ -15,6 +25,7 @@ import {
 import { registrarLog } from "@/lib/logs";
 
 const STORAGE_KEY = "fluxo:planilha";
+
 
 /**
  * Lê os lançamentos de TODAS as abas da planilha, ignorando abas de resumo
@@ -44,9 +55,13 @@ type Ctx = {
   setContasSelecionadas: (contas: string[]) => void;
   fileName: string | null;
   erro: string | null;
+  gravando: boolean;
+  gravadoEm: string | null;
   importar: (file: File) => Promise<void>;
-  restaurar: (rows: Raw[], fileName: string | null) => void;
+  restaurar: (rows: Raw[], fileName: string | null, mesclar?: boolean) => void;
   exportar: (data: FluxoData, nome: string) => void;
+  gravar: () => Promise<void>;
+  zerar: () => Promise<void>;
   abrirSeletor: () => void;
   inputProps: {
     ref: React.RefObject<HTMLInputElement | null>;
@@ -71,8 +86,28 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
   const [rows, setRows] = useState<Raw[]>(() => cache?.rows ?? []);
   const [fileName, setFileName] = useState<string | null>(cache?.fileName ?? null);
   const [erro, setErro] = useState<string | null>(null);
+  const [gravando, setGravando] = useState(false);
+  const [gravadoEm, setGravadoEm] = useState<string | null>(null);
   const [contasSelecionadas, setContasSelecionadas] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rowsRef = useRef<Raw[]>(rows);
+  rowsRef.current = rows;
+
+  /** Base gravada no banco vira a fonte padrão ao abrir o painel. */
+  useEffect(() => {
+    let ativo = true;
+    void carregarDataset()
+      .then((salvo) => {
+        if (!ativo || !salvo) return;
+        setGravadoEm(salvo.atualizadoEm);
+        setRows((atuais) => (atuais.length ? mesclarRows(salvo.rows, atuais) : salvo.rows));
+        setFileName((atual) => atual ?? salvo.arquivo);
+      })
+      .catch(() => undefined);
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const contas = useMemo(() => contasRealizadas(rows), [rows]);
 
@@ -89,6 +124,17 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
 
 
   const value = useMemo<Ctx>(() => {
+    function persistirCache(novas: Raw[], nome: string | null) {
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ rows: novas, fileName: nome ?? "base" }),
+        );
+      } catch {
+        /* planilha grande demais para o cache local */
+      }
+    }
+
     async function importar(file: File) {
       setErro(null);
       try {
@@ -100,38 +146,71 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
           return;
         }
+        // Mescla com a base atual: permite subir a planilha mês a mês.
+        const combinadas = mesclarRows(rowsRef.current, lidas);
+        const novos = combinadas.length - rowsRef.current.length;
         setContasSelecionadas([]);
-        setRows(lidas);
+        setRows(combinadas);
         setFileName(file.name);
-        try {
-          window.localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify({ rows: lidas, fileName: file.name }),
-          );
-        } catch {
-          /* planilha grande demais para o cache local */
-        }
+        persistirCache(combinadas, file.name);
         void registrarLog(
           "importacao",
-          `Base atualizada com "${file.name}" (${lidas.length} lançamentos)`,
+          `Base complementada com "${file.name}" (${novos} novos de ${lidas.length} lançamentos lidos)`,
         );
       } catch {
         setErro("Não foi possível ler o arquivo. Envie um .xlsx válido.");
       }
     }
 
-    function restaurar(novas: Raw[], nome: string | null) {
+    function restaurar(novas: Raw[], nome: string | null, mesclar = false) {
       setErro(null);
       setContasSelecionadas([]);
-      setRows(novas);
+      const finais = mesclar ? mesclarRows(rowsRef.current, novas) : novas;
+      setRows(finais);
       setFileName(nome);
+      persistirCache(finais, nome);
+    }
+
+    async function gravar() {
+      setErro(null);
+      setGravando(true);
       try {
-        window.localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ rows: novas, fileName: nome ?? "backup" }),
+        await gravarDataset(rowsRef.current, fileName);
+        setGravadoEm(new Date().toISOString());
+        void registrarLog(
+          "backup",
+          `Base gravada no sistema (${rowsRef.current.length} lançamentos)`,
         );
-      } catch {
-        /* planilha grande demais para o cache local */
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Falha ao gravar os dados.";
+        setErro(msg);
+        throw e;
+      } finally {
+        setGravando(false);
+      }
+    }
+
+    async function zerar() {
+      setErro(null);
+      setGravando(true);
+      try {
+        await limparDataset();
+        setRows([]);
+        setFileName(null);
+        setGravadoEm(null);
+        setContasSelecionadas([]);
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* cache indisponível */
+        }
+        void registrarLog("backup", "Base de lançamentos zerada");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Falha ao zerar os dados.";
+        setErro(msg);
+        throw e;
+      } finally {
+        setGravando(false);
       }
     }
 
@@ -169,9 +248,13 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       setContasSelecionadas,
       fileName,
       erro,
+      gravando,
+      gravadoEm,
       importar,
       restaurar,
       exportar,
+      gravar,
+      zerar,
       abrirSeletor: () => inputRef.current?.click(),
       inputProps: {
         ref: inputRef,
@@ -182,7 +265,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
         },
       },
     };
-  }, [bundle, bundleDia, rows, contas, contasSelecionadas, fileName, erro]);
+  }, [bundle, bundleDia, rows, contas, contasSelecionadas, fileName, erro, gravando, gravadoEm]);
 
 
   return (

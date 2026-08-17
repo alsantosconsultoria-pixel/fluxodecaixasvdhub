@@ -524,3 +524,27 @@ export function detalhesDe(rows: Raw[], categoria: string, contas: string[] = []
     return ia.localeCompare(ib);
   });
 }
+
+/** Chave de deduplicação de um lançamento (todas as colunas da planilha). */
+function chaveLancamento(row: Raw): string {
+  return Object.keys(row)
+    .sort()
+    .map((k) => `${k.trim().toLowerCase()}=${String(row[k] ?? "").trim()}`)
+    .join("|");
+}
+
+/**
+ * Une a base atual com novos lançamentos (planilha mês a mês ou backup),
+ * ignorando linhas idênticas já existentes.
+ */
+export function mesclarRows(atuais: Raw[], novas: Raw[]): Raw[] {
+  const vistos = new Set(atuais.map(chaveLancamento));
+  const out = [...atuais];
+  for (const row of novas) {
+    const k = chaveLancamento(row);
+    if (vistos.has(k)) continue;
+    vistos.add(k);
+    out.push(row);
+  }
+  return out;
+}
