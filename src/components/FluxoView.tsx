@@ -160,6 +160,20 @@ export function FluxoView({
             <Upload className="size-4" />
             Importar planilha base
           </Button>
+          {isAdmin && (
+            <Button
+              variant="secondary"
+              onClick={() => void gravar().catch(() => undefined)}
+              disabled={gravando || !rows.length}
+            >
+              {gravando ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              Gravar dados
+            </Button>
+          )}
           <Button onClick={() => exportar(view, exportName)}>
             <Download className="size-4" />
             Baixar backup em Excel
