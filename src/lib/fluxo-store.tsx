@@ -1,11 +1,21 @@
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import * as XLSX from "xlsx";
 
 import baseData from "@/data/fluxo-caixa.json";
+import { carregarDataset, gravarDataset, limparDataset } from "@/lib/dataset";
 import {
   buildFluxo,
   computeTotais,
   contasRealizadas,
+  mesclarRows,
   mesLabel,
   trimMeses,
   type FluxoBundle,
@@ -15,6 +25,7 @@ import {
 import { registrarLog } from "@/lib/logs";
 
 const STORAGE_KEY = "fluxo:planilha";
+
 
 /**
  * Lê os lançamentos de TODAS as abas da planilha, ignorando abas de resumo
