@@ -16,6 +16,24 @@ import { registrarLog } from "@/lib/logs";
 
 const STORAGE_KEY = "fluxo:planilha";
 
+/**
+ * Lê os lançamentos de TODAS as abas da planilha, ignorando abas de resumo
+ * (tabelas dinâmicas) que não têm as colunas da base.
+ */
+function lerLancamentos(wb: XLSX.WorkBook): Raw[] {
+  const out: Raw[] = [];
+  for (const nome of wb.SheetNames) {
+    const linhas = XLSX.utils.sheet_to_json<Raw>(wb.Sheets[nome], { defval: "" });
+    const valida = linhas.some(
+      (r) =>
+        Object.keys(r).some((k) => k.trim().toLowerCase() === "operação") &&
+        Object.keys(r).some((k) => k.trim().toLowerCase() === "categoria financeira"),
+    );
+    if (valida) out.push(...linhas);
+  }
+  return out;
+}
+
 type Ctx = {
   bundle: FluxoBundle;
   bundleDia: FluxoBundle;
