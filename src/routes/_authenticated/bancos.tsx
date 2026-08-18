@@ -50,7 +50,8 @@ const VAZIO: BancoInput = {
 };
 
 function BancosPage() {
-  const { isAdmin } = useSession();
+  const { isAdmin, isAvaliador } = useSession();
+  const podeEditar = isAdmin || isAvaliador;
   const { bancos, saldoTotal, carregando, erro, recarregar } = useBancos();
   const [form, setForm] = useState<BancoInput & { id?: string }>(VAZIO);
   const [salvando, setSalvando] = useState(false);
@@ -130,7 +131,7 @@ function BancosPage() {
         <Card label="Última data de saldo" value={ultimaAtualizacao} />
       </section>
 
-      {isAdmin && (
+      {podeEditar && (
         <form
           onSubmit={submit}
           className="grid gap-4 rounded-xl border border-flow-grid bg-card p-4 shadow-elegant md:grid-cols-6"
@@ -261,7 +262,7 @@ function BancosPage() {
               <th className="px-4 py-2 text-left">Agência / Conta</th>
               <th className="px-4 py-2 text-left">Data do saldo</th>
               <th className="px-4 py-2 text-right">Saldo</th>
-              {isAdmin && <th className="px-4 py-2" />}
+              {podeEditar && <th className="px-4 py-2" />}
             </tr>
           </thead>
           <tbody>
@@ -301,7 +302,7 @@ function BancosPage() {
                 >
                   {formatValor(b.saldo)}
                 </td>
-                {isAdmin && (
+                {podeEditar && (
                   <td className="px-4 py-2 text-right">
                     <Button size="sm" variant="ghost" onClick={() => editar(b)}>
                       Editar
@@ -323,7 +324,7 @@ function BancosPage() {
                 <td className="px-4 py-2 text-right tabular-nums text-flow-saldo">
                   {formatValor(saldoTotal)}
                 </td>
-                {isAdmin && <td />}
+                {podeEditar && <td />}
               </tr>
             </tfoot>
           )}
@@ -331,9 +332,9 @@ function BancosPage() {
       </section>
 
       {erro && <p className="text-sm text-flow-out">{erro}</p>}
-      {!isAdmin && (
+      {!podeEditar && (
         <p className="text-xs text-muted-foreground">
-          Somente administradores podem cadastrar ou alterar saldos bancários.
+          Somente administradores e avaliadores podem cadastrar ou alterar saldos bancários.
         </p>
       )}
     </div>
