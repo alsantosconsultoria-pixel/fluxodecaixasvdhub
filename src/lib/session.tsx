@@ -17,6 +17,7 @@ type SessionCtx = {
   user: User | null;
   perfil: Perfil | null;
   isAdmin: boolean;
+  isAvaliador: boolean;
   carregando: boolean;
   abasPermitidas: string[];
   podeAcessar: (rota: string) => boolean;
@@ -27,6 +28,7 @@ const Ctx = createContext<SessionCtx>({
   user: null,
   perfil: null,
   isAdmin: false,
+  isAvaliador: false,
   carregando: true,
   abasPermitidas: [],
   podeAcessar: () => false,
@@ -37,6 +39,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAvaliador, setIsAvaliador] = useState(false);
   const [abasPermitidas, setAbasPermitidas] = useState<string[]>([]);
   const [carregando, setCarregando] = useState(true);
 
@@ -45,6 +48,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!atual) {
       setPerfil(null);
       setIsAdmin(false);
+      setIsAvaliador(false);
       setAbasPermitidas([]);
       setCarregando(false);
       return;
@@ -56,6 +60,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     ]);
     setPerfil(p ?? { id: atual.id, nome: atual.email ?? "", email: atual.email ?? "" });
     setIsAdmin((papeis ?? []).some((r) => r.role === "admin"));
+    setIsAvaliador((papeis ?? []).some((r) => r.role === "avaliador"));
     setAbasPermitidas(
       (perms ?? []).length ? (perms ?? []).map((r) => r.aba) : ABAS_PADRAO,
     );
@@ -84,6 +89,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       user,
       perfil,
       isAdmin,
+      isAvaliador,
       carregando,
       abasPermitidas,
       podeAcessar: (rota: string) => {
@@ -97,7 +103,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await carregar(data.user ?? null);
       },
     }),
-    [user, perfil, isAdmin, carregando, abasPermitidas],
+    [user, perfil, isAdmin, isAvaliador, carregando, abasPermitidas],
 
   );
 

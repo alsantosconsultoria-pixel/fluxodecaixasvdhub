@@ -1,0 +1,2 @@
+CREATE POLICY bank_accounts_avaliador_write ON public.bank_accounts FOR ALL TO authenticated USING (private.has_role(auth.uid(), 'avaliador'::app_role)) WITH CHECK (private.has_role(auth.uid(), 'avaliador'::app_role));
+CREATE POLICY kpi_configs_select_avaliador ON public.kpi_configs FOR SELECT TO authenticated USING (private.has_role(auth.uid(), 'avaliador'::app_role));
