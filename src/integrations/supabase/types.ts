@@ -80,6 +80,33 @@ export type Database = {
         }
         Relationships: []
       }
+      cmv_dataset: {
+        Row: {
+          arquivo: string
+          atualizado_em: string
+          criado_por: string | null
+          id: string
+          linhas: Json
+          parte: number
+        }
+        Insert: {
+          arquivo?: string
+          atualizado_em?: string
+          criado_por?: string | null
+          id?: string
+          linhas?: Json
+          parte: number
+        }
+        Update: {
+          arquivo?: string
+          atualizado_em?: string
+          criado_por?: string | null
+          id?: string
+          linhas?: Json
+          parte?: number
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           atualizado_em: string
