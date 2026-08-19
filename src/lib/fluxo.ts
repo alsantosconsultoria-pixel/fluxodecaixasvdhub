@@ -191,11 +191,7 @@ function parseLancamentos(rows: Raw[], gran: Granularidade): Lancamento[] {
     const realizado = ehRealizado(row);
 
     const mes = realizado
-      ? primeiroPeriodo(
-          gran,
-          pick(row, "Data pagamento/recebimento"),
-          pick(row, "Data baixa"),
-        )
+      ? primeiroPeriodo(gran, pick(row, "Data pagamento/recebimento"))
       : primeiroPeriodo(gran, pick(row, "Data vencimento"));
     if (!mes) continue;
 
