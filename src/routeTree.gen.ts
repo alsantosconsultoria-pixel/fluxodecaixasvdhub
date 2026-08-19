@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedApresentacaoRouteImport } from './routes/_authenticated/apresentacao'
 import { Route as AuthenticatedBackupRouteImport } from './routes/_authenticated/backup'
 import { Route as AuthenticatedBancosRouteImport } from './routes/_authenticated/bancos'
+import { Route as AuthenticatedCmvRouteImport } from './routes/_authenticated/cmv'
 import { Route as AuthenticatedDreRouteImport } from './routes/_authenticated/dre'
 import { Route as AuthenticatedEmpresaRouteImport } from './routes/_authenticated/empresa'
 import { Route as AuthenticatedKpisRouteImport } from './routes/_authenticated/kpis'
@@ -50,6 +51,11 @@ const AuthenticatedBackupRoute = AuthenticatedBackupRouteImport.update({
 const AuthenticatedBancosRoute = AuthenticatedBancosRouteImport.update({
   id: '/bancos',
   path: '/bancos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCmvRoute = AuthenticatedCmvRouteImport.update({
+  id: '/cmv',
+  path: '/cmv',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDreRoute = AuthenticatedDreRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
   '/backup': typeof AuthenticatedBackupRoute
   '/bancos': typeof AuthenticatedBancosRoute
+  '/cmv': typeof AuthenticatedCmvRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/apresentacao': typeof AuthenticatedApresentacaoRoute
   '/backup': typeof AuthenticatedBackupRoute
   '/bancos': typeof AuthenticatedBancosRoute
+  '/cmv': typeof AuthenticatedCmvRoute
   '/dre': typeof AuthenticatedDreRoute
   '/empresa': typeof AuthenticatedEmpresaRoute
   '/kpis': typeof AuthenticatedKpisRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/_authenticated/apresentacao': typeof AuthenticatedApresentacaoRoute
   '/_authenticated/backup': typeof AuthenticatedBackupRoute
   '/_authenticated/bancos': typeof AuthenticatedBancosRoute
+  '/_authenticated/cmv': typeof AuthenticatedCmvRoute
   '/_authenticated/dre': typeof AuthenticatedDreRoute
   '/_authenticated/empresa': typeof AuthenticatedEmpresaRoute
   '/_authenticated/kpis': typeof AuthenticatedKpisRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/apresentacao'
     | '/backup'
     | '/bancos'
+    | '/cmv'
     | '/dre'
     | '/empresa'
     | '/kpis'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/apresentacao'
     | '/backup'
     | '/bancos'
+    | '/cmv'
     | '/dre'
     | '/empresa'
     | '/kpis'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apresentacao'
     | '/_authenticated/backup'
     | '/_authenticated/bancos'
+    | '/_authenticated/cmv'
     | '/_authenticated/dre'
     | '/_authenticated/empresa'
     | '/_authenticated/kpis'
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBancosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cmv': {
+      id: '/_authenticated/cmv'
+      path: '/cmv'
+      fullPath: '/cmv'
+      preLoaderRoute: typeof AuthenticatedCmvRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dre': {
       id: '/_authenticated/dre'
       path: '/dre'
@@ -265,6 +284,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedApresentacaoRoute: typeof AuthenticatedApresentacaoRoute
   AuthenticatedBackupRoute: typeof AuthenticatedBackupRoute
   AuthenticatedBancosRoute: typeof AuthenticatedBancosRoute
+  AuthenticatedCmvRoute: typeof AuthenticatedCmvRoute
   AuthenticatedDreRoute: typeof AuthenticatedDreRoute
   AuthenticatedEmpresaRoute: typeof AuthenticatedEmpresaRoute
   AuthenticatedKpisRoute: typeof AuthenticatedKpisRoute
@@ -278,6 +298,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedApresentacaoRoute: AuthenticatedApresentacaoRoute,
   AuthenticatedBackupRoute: AuthenticatedBackupRoute,
   AuthenticatedBancosRoute: AuthenticatedBancosRoute,
+  AuthenticatedCmvRoute: AuthenticatedCmvRoute,
   AuthenticatedDreRoute: AuthenticatedDreRoute,
   AuthenticatedEmpresaRoute: AuthenticatedEmpresaRoute,
   AuthenticatedKpisRoute: AuthenticatedKpisRoute,

@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { CmvProvider } from "@/lib/cmv-store";
 import { FluxoProvider } from "@/lib/fluxo-store";
 import { SessionProvider, useSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,6 +162,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <FluxoProvider>
+          <CmvProvider>
           <SidebarProvider>
             <div className="flex min-h-screen w-full bg-gradient-page">
               <AppSidebar />
@@ -180,6 +182,7 @@ function RootComponent() {
               </div>
             </div>
           </SidebarProvider>
+          </CmvProvider>
         </FluxoProvider>
       </SessionProvider>
     </QueryClientProvider>
