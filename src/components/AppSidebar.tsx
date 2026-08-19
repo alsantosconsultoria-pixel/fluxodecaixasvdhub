@@ -3,6 +3,7 @@ import {
   Building2,
   DatabaseBackup,
   CalendarClock,
+  Car,
   FileBarChart,
   History,
   Landmark,
@@ -32,6 +33,7 @@ const financeiroBase = [
   { title: "Fluxo de Caixa", url: "/", icon: LayoutDashboard },
   { title: "Saldos Bancários", url: "/bancos", icon: Landmark },
   { title: "DRE Gerencial", url: "/dre", icon: FileBarChart },
+  { title: "Análise de CMV", url: "/cmv", icon: Car },
   { title: "Projeções futuras", url: "/projecao", icon: CalendarClock },
   { title: "Apresentação", url: "/apresentacao", icon: Presentation },
 ];
