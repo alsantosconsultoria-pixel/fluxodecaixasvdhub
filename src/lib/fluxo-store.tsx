@@ -93,15 +93,23 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
   const rowsRef = useRef<Raw[]>(rows);
   rowsRef.current = rows;
 
-  /** Base gravada no banco vira a fonte padrão ao abrir o painel. */
+  /** Base gravada no banco é a fonte de verdade ao abrir o painel. */
   useEffect(() => {
     let ativo = true;
     void carregarDataset()
       .then((salvo) => {
         if (!ativo || !salvo) return;
         setGravadoEm(salvo.atualizadoEm);
-        setRows((atuais) => (atuais.length ? mesclarRows(salvo.rows, atuais) : salvo.rows));
-        setFileName((atual) => atual ?? salvo.arquivo);
+        setRows(salvo.rows);
+        setFileName(salvo.arquivo);
+        try {
+          window.localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ rows: salvo.rows, fileName: salvo.arquivo ?? "base" }),
+          );
+        } catch {
+          /* cache indisponível */
+        }
       })
       .catch(() => undefined);
     return () => {
@@ -112,14 +120,13 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
   const contas = useMemo(() => contasRealizadas(rows), [rows]);
 
   const bundle = useMemo<FluxoBundle>(
-    () =>
-      rows.length ? buildFluxo(rows, "mes", contasSelecionadas) : (baseData as FluxoBundle),
+    () => buildFluxo(rows, "mes", contasSelecionadas),
     [rows, contasSelecionadas],
   );
 
   const bundleDia = useMemo<FluxoBundle>(
-    () => (rows.length ? buildFluxo(rows, "dia", contasSelecionadas) : bundle),
-    [rows, contasSelecionadas, bundle],
+    () => buildFluxo(rows, "dia", contasSelecionadas),
+    [rows, contasSelecionadas],
   );
 
 
@@ -135,6 +142,16 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    /** Grava no servidor as últimas alterações/importações (silencioso se sem permissão). */
+    async function persistirServidor(novas: Raw[], nome: string | null) {
+      try {
+        await gravarDataset(novas, nome);
+        setGravadoEm(new Date().toISOString());
+      } catch {
+        /* usuário sem permissão de gravação: mantém apenas em cache local */
+      }
+    }
+
     async function importar(file: File) {
       setErro(null);
       try {
@@ -146,16 +163,16 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
           setErro("Nenhum lançamento válido encontrado nesta planilha.");
           return;
         }
-        // Mescla com a base atual: permite subir a planilha mês a mês.
+        // Soma à base atual exatamente como veio da planilha (sem deduplicar).
         const combinadas = mesclarRows(rowsRef.current, lidas);
-        const novos = combinadas.length - rowsRef.current.length;
         setContasSelecionadas([]);
         setRows(combinadas);
         setFileName(file.name);
         persistirCache(combinadas, file.name);
+        await persistirServidor(combinadas, file.name);
         void registrarLog(
           "importacao",
-          `Base complementada com "${file.name}" (${novos} novos de ${lidas.length} lançamentos lidos)`,
+          `Base complementada com "${file.name}" (${lidas.length} lançamentos importados; total ${combinadas.length})`,
         );
       } catch {
         setErro("Não foi possível ler o arquivo. Envie um .xlsx válido.");
@@ -169,6 +186,7 @@ export function FluxoProvider({ children }: { children: ReactNode }) {
       setRows(finais);
       setFileName(nome);
       persistirCache(finais, nome);
+      void persistirServidor(finais, nome);
     }
 
     async function gravar() {
