@@ -14,7 +14,7 @@ export type Empresa = {
   principal: boolean;
 };
 
-export type EmpresaInput = Omit<Empresa, "id"> & { id?: string };
+export type EmpresaInput = Partial<Omit<Empresa, "nome">> & { nome: string };
 
 const CAMPOS = "id, nome, logo_url, cnpj, razao_social, email, telefone, endereco, principal";
 
