@@ -110,24 +110,42 @@ export type Database = {
       company_settings: {
         Row: {
           atualizado_em: string
+          cnpj: string
           criado_em: string
+          email: string
+          endereco: string
           id: string
           logo_url: string | null
           nome: string
+          principal: boolean
+          razao_social: string
+          telefone: string
         }
         Insert: {
           atualizado_em?: string
+          cnpj?: string
           criado_em?: string
+          email?: string
+          endereco?: string
           id?: string
           logo_url?: string | null
           nome?: string
+          principal?: boolean
+          razao_social?: string
+          telefone?: string
         }
         Update: {
           atualizado_em?: string
+          cnpj?: string
           criado_em?: string
+          email?: string
+          endereco?: string
           id?: string
           logo_url?: string | null
           nome?: string
+          principal?: boolean
+          razao_social?: string
+          telefone?: string
         }
         Relationships: []
       }

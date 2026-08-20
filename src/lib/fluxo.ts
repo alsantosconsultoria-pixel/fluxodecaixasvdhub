@@ -521,93 +521,12 @@ export function detalhesDe(rows: Raw[], categoria: string, contas: string[] = []
   });
 }
 
-/** Chave de deduplicação de um lançamento (todas as colunas da planilha). */
-function chaveLancamento(row: Raw): string {
-  return Object.keys(row)
-    .sort()
-    .map((k) => `${k.trim().toLowerCase()}=${String(row[k] ?? "").trim()}`)
-    .join("|");
-}
-
-function txt(row: Raw, col: string) {
-  return String(pick(row, col) ?? "")
-    .trim()
-    .toLowerCase();
-}
-
-/** Documento identificador do título (nº documento / nº título). */
-function documentoDe(row: Raw) {
-  return txt(row, "Nº documento") || txt(row, "N. Título") || txt(row, "Numero documento");
-}
-
-function valorChave(row: Raw) {
-  const v =
-    parseValor(pick(row, "Valor título")) ||
-    parseValor(pick(row, "Total pago") ?? pick(row, "Valor pago"));
-  return Math.abs(v).toFixed(2);
-}
-
 /**
- * Identidade do título: mesma operação + nº documento + valor + vencimento.
- * Não inclui a data de pagamento nem a conta, para que uma provisão possa ser
- * reconhecida e atualizada quando a nova base a trouxer já realizada.
- */
-function chaveTitulo(row: Raw): string | null {
-  const doc = documentoDe(row);
-  if (!doc) return null;
-  const venc = parseDia(pick(row, "Data vencimento")) ?? "";
-  return [
-    txt(row, "Operação"),
-    doc,
-    valorChave(row),
-    venc,
-    txt(row, "Categoria financeira"),
-    txt(row, "Cliente/Fornecedor"),
-  ].join("|");
-}
-
-/**
- * Une a base atual com novos lançamentos (planilha mês a mês ou backup):
- * - ignora linhas idênticas;
- * - ignora duplicidades de mesmo documento, valor, vencimento e pagamento;
- * - atualiza a linha existente quando a provisão passa a ser realizada
- *   (nova linha com "Conta"/data de pagamento preenchidas).
+ * Une a base atual com novos lançamentos (planilha mês a mês ou backup).
+ * Sem deduplicação: a base importada é extraída exatamente como veio.
  */
 export function mesclarRows(atuais: Raw[], novas: Raw[]): Raw[] {
-  const out = [...atuais];
-  const vistos = new Map<string, number>();
-  const titulos = new Map<string, number>();
-
-  atuais.forEach((row, i) => {
-    vistos.set(chaveLancamento(row), i);
-    const t = chaveTitulo(row);
-    if (t !== null && !titulos.has(t)) titulos.set(t, i);
-  });
-
-  for (const row of novas) {
-    const completa = chaveLancamento(row);
-    if (vistos.has(completa)) continue;
-
-    const t = chaveTitulo(row);
-    if (t !== null && titulos.has(t)) {
-      const i = titulos.get(t)!;
-      const atual = out[i];
-      // Só substitui quando a nova versão traz o realizado (conta preenchida)
-      // e a existente ainda é provisão.
-      if (ehRealizado(row) && !ehRealizado(atual)) {
-        vistos.delete(chaveLancamento(atual));
-        out[i] = row;
-        vistos.set(completa, i);
-      }
-      continue;
-    }
-
-    const i = out.length;
-    out.push(row);
-    vistos.set(completa, i);
-    if (t !== null) titulos.set(t, i);
-  }
-
-  return out;
+  return [...atuais, ...novas];
 }
+
 
