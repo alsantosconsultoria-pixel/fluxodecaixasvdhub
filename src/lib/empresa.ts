@@ -38,13 +38,13 @@ export async function buscarEmpresa(): Promise<Empresa | null> {
 export async function salvarEmpresa(input: EmpresaInput) {
   const payload = {
     nome: input.nome,
-    logo_url: input.logo_url,
-    cnpj: input.cnpj,
-    razao_social: input.razao_social,
-    email: input.email,
-    telefone: input.telefone,
-    endereco: input.endereco,
-    principal: input.principal,
+    logo_url: input.logo_url ?? null,
+    cnpj: input.cnpj ?? "",
+    razao_social: input.razao_social ?? "",
+    email: input.email ?? "",
+    telefone: input.telefone ?? "",
+    endereco: input.endereco ?? "",
+    principal: input.principal ?? false,
   };
 
   let id = input.id;
