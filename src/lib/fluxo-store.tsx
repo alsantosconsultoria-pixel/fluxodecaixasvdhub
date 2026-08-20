@@ -9,7 +9,6 @@ import {
 } from "react";
 import * as XLSX from "xlsx";
 
-import baseData from "@/data/fluxo-caixa.json";
 import { carregarDataset, gravarDataset, limparDataset } from "@/lib/dataset";
 import {
   buildFluxo,
