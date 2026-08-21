@@ -17,7 +17,7 @@ export const ABAS: Aba[] = [
   { chave: "apresentacao", titulo: "Apresentação", rota: "/apresentacao", grupo: "financeiro" },
   { chave: "kpis", titulo: "Editar KPIs", rota: "/kpis", grupo: "administracao" },
   { chave: "usuarios", titulo: "Usuários", rota: "/usuarios", grupo: "administracao" },
-  { chave: "empresa", titulo: "Empresa", rota: "/empresa", grupo: "administracao" },
+  { chave: "empresa", titulo: "Empresas (CNPJs)", rota: "/empresa", grupo: "administracao" },
   { chave: "backup", titulo: "Backup", rota: "/backup", grupo: "administracao" },
   { chave: "logs", titulo: "Registros", rota: "/logs", grupo: "administracao" },
 ];

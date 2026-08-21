@@ -28,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 function FluxoDeCaixa() {
-  const { bundle, bundleDia, temDetalheDiario } = useFluxo();
+  const { bundle, bundleDia, temDetalheDiario, rows } = useFluxo();
   const [modo, setModo] = useState<"realizado" | "total">("realizado");
   const [gran, setGran] = useState<"dia" | "mes">(temDetalheDiario ? "dia" : "mes");
 
@@ -36,6 +36,11 @@ function FluxoDeCaixa() {
 
   return (
     <div className="space-y-4">
+      {!rows.length && (
+        <div className="mx-auto max-w-[1600px] rounded-xl border border-flow-grid bg-card p-4 text-sm text-muted-foreground">
+          Base zerada — nenhum lançamento cadastrado. Importe uma planilha para começar.
+        </div>
+      )}
       <div className="mx-auto flex max-w-[1600px] gap-2">
         <Button
           size="sm"
