@@ -41,7 +41,7 @@ const financeiroBase = [
 const administracaoBase = [
   { title: "Editar KPIs", url: "/kpis", icon: Wand2 },
   { title: "Usuários", url: "/usuarios", icon: Users },
-  { title: "Empresa", url: "/empresa", icon: Building2 },
+  { title: "Empresas", url: "/empresa", icon: Building2 },
   { title: "Backup", url: "/backup", icon: DatabaseBackup },
   { title: "Registros", url: "/logs", icon: History },
 ];
