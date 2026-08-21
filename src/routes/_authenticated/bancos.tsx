@@ -307,9 +307,12 @@ function BancosPage() {
                     <Button size="sm" variant="ghost" onClick={() => editar(b)}>
                       Editar
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={() => void remover(b)}>
-                      <Trash2 className="size-4 text-flow-out" />
-                    </Button>
+                    {isAdmin && (
+                      <Button size="sm" variant="ghost" onClick={() => void remover(b)}>
+                        <Trash2 className="size-4 text-flow-out" />
+                      </Button>
+                    )}
+
                   </td>
                 )}
               </tr>
